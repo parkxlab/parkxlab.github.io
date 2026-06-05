@@ -65,6 +65,10 @@
         }
         .action-btn:hover { background-color: var(--primary-hover); }
         .score-display { font-size: 3.5rem; font-weight: bold; color: var(--primary); margin: 20px 0; }
+        
+        /* Flashcard Specific Styles */
+        .fc-korean { font-size: 6rem; font-weight: 800; color: var(--text-main); line-height: 1.2; margin-top: 10px; }
+        .fc-romanized { font-size: 2rem; color: var(--primary); font-weight: bold; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -73,10 +77,25 @@
         <div id="menu-screen">
             <h1>Korean Practice</h1>
             <p class="subtitle">Practice pronunciation and vocabulary!</p>
+            <button class="menu-btn" onclick="startStage(0)" style="background-color: #fef08a; border-color: #fde047;">Stage 0: Learn & Play (Beginner)</button>
             <button class="menu-btn" onclick="startStage(1)">Stage 1: Basic Syllables</button>
             <button class="menu-btn" onclick="startStage(2)">Stage 2: Complex Syllables</button>
             <button class="menu-btn" onclick="startStage(3)">Stage 3: Basic Words (Pronunciation)</button>
             <button class="menu-btn" onclick="startStage(4)" style="background-color: #e0e7ff; border-color: #c7d2fe;">Stage 4: Vocabulary Master 🌟</button>
+        </div>
+
+        <!-- NEW: Flashcard Screen for Stage 0 -->
+        <div id="flashcard-screen" class="hidden">
+            <div class="stage-title">Study Mode 📚</div>
+            <p class="subtitle" id="fc-progress-text">Card 1 / 10</p>
+            
+            <div class="fc-korean" id="fc-korean">ㄱ</div>
+            <div class="fc-romanized" id="fc-romanized">g / k</div>
+            
+            <div class="explanation-box" id="fc-hint" style="text-align: center; margin-top: 30px;">💡 Looks like a Goose neck! 🦆</div>
+            
+            <button class="action-btn" id="fc-next-btn" onclick="nextFlashcard()" style="margin-top: 15px;">Next Card</button>
+            <button class="action-btn hidden" id="fc-start-quiz-btn" onclick="startQuizFromFlashcard()" style="margin-top: 15px; background-color: var(--success);">Start Quiz! 🎮</button>
         </div>
 
         <div id="quiz-screen" class="hidden">
@@ -109,9 +128,52 @@
         const QUESTIONS_PER_ROUND = 10;
 
         // [형식 안내] 
+        // 0단계: ["발음", "한국어", "오답1", "오답2", "암기힌트"]
         // 1~3단계: ["한국어", "정답발음", "오답1", "오답2", "설명/힌트", "영어뜻(3단계용)"]
         // 4단계: ["한국어", "정답뜻", "오답뜻1", "오답뜻2", "힌트"] -> 발음기호 없이 뜻을 맞추는 구조
-            const rawData = {
+        const rawData = {
+            0: [
+                ["g / k", "ㄱ", "ㄴ", "ㅅ", "Looks like a Goose neck! 🦆"],
+                ["n", "ㄴ", "ㄱ", "ㄷ", "Looks like a Knee! 🦵"],
+                ["d / t", "ㄷ", "ㄴ", "ㅁ", "Looks like a Door! 🚪"],
+                ["r / l", "ㄹ", "ㄷ", "ㅂ", "Looks like a winding Road! 🛣️"],
+                ["m", "ㅁ", "ㅇ", "ㅂ", "Looks like a square Mailbox! 📭"],
+                ["b / p", "ㅂ", "ㅁ", "ㅍ", "Looks like a Bucket! 🪣"],
+                ["s", "ㅅ", "ㅈ", "ㅇ", "Looks like a Slide! 🛝"],
+                ["ng / silent", "ㅇ", "ㅁ", "ㅎ", "Looks like a round Orange! 🍊"],
+                ["j", "ㅈ", "ㅅ", "ㅊ", "Looks like a person Jogging! 🏃"],
+                ["ch", "ㅊ", "ㅈ", "ㅎ", "Looks like a Church roof! ⛪"],
+                ["k", "ㅋ", "ㄱ", "ㅌ", "Looks like a Key! 🔑"],
+                ["t", "ㅌ", "ㄷ", "ㅍ", "Looks like a Two-pronged fork! 🍴"],
+                ["p", "ㅍ", "ㅂ", "ㅁ", "Looks like a Piano keyboard! 🎹"],
+                ["h", "ㅎ", "ㅇ", "ㅊ", "Looks like a man wearing a Hat! 🎩"],
+                ["kk", "ㄲ", "ㅃ", "ㅆ", "Two Geese side by side! 🦆🦆"],
+                ["tt", "ㄸ", "ㄲ", "ㅉ", "Two Doors next to each other! 🚪🚪"],
+                ["pp", "ㅃ", "ㄸ", "ㅆ", "Two Buckets together! 🪣🪣"],
+                ["ss", "ㅆ", "ㅉ", "ㄲ", "Two Slides! 🛝🛝"],
+                ["jj", "ㅉ", "ㅆ", "ㅃ", "Two people Jogging! 🏃🏃"],
+                ["a", "ㅏ", "ㅓ", "ㅗ", "Pointing to the right (Ah!) 👉"],
+                ["ya", "ㅑ", "ㅕ", "ㅛ", "Two lines pointing right (Ya!) ✌️"],
+                ["eo", "ㅓ", "ㅏ", "ㅜ", "Pointing to the left (Oh no!) 👈"],
+                ["yeo", "ㅕ", "ㅑ", "ㅠ", "Two lines pointing left (Yeo!) ✌️"],
+                ["o", "ㅗ", "ㅜ", "ㅣ", "Pointing Over the line ☝️"],
+                ["yo", "ㅛ", "ㅠ", "ㅑ", "Two lines pointing up (Yo-yo!) 🪀"],
+                ["u", "ㅜ", "ㅗ", "ㅡ", "Pointing Under the line 👇"],
+                ["yu", "ㅠ", "ㅛ", "ㅕ", "Two lines pointing down (You!) 🫵"],
+                ["eu", "ㅡ", "ㅣ", "ㅜ", "Flat like the Earth! 🌍"],
+                ["i", "ㅣ", "ㅡ", "ㅏ", "Standing tall like an Ice cream! 🍦"],
+                ["ae", "ㅐ", "ㅔ", "ㅒ", "Looks like an H (Apple) 🍎"],
+                ["yae", "ㅒ", "ㅖ", "ㅐ", "Two lines inside (Yak) 🐂"],
+                ["e", "ㅔ", "ㅐ", "ㅖ", "Looks like a ladder (Egg) 🥚"],
+                ["ye", "ㅖ", "ㅒ", "ㅔ", "Two lines on the ladder (Yes) 👍"],
+                ["wa", "ㅘ", "ㅝ", "ㅙ", "ㅗ + ㅏ = Wa! (Water) 💧"],
+                ["wae", "ㅙ", "ㅞ", "ㅚ", "ㅗ + ㅐ = Wae! (Wait!) ✋"],
+                ["oe", "ㅚ", "ㅟ", "ㅙ", "ㅗ + ㅣ = Oe! (Sounds like 'we') 👥"],
+                ["wo", "ㅝ", "ㅘ", "ㅞ", "ㅜ + ㅓ = Wo! (Wonder) 😲"],
+                ["we", "ㅞ", "ㅙ", "ㅟ", "ㅜ + ㅔ = We! (Web) 🕸️"],
+                ["wi", "ㅟ", "ㅚ", "ㅢ", "ㅜ + ㅣ = Wi! (Wind) 🌬️"],
+                ["ui", "ㅢ", "ㅟ", "ㅚ", "ㅡ + ㅣ = Ui! 🎢"]
+            ],
             1: [ // 1단계: 기본 자모음 (100개)
                 ["가","ga","na","da","ㄱ(g) + ㅏ(a)"], ["나","na","ma","ra","ㄴ(n) + ㅏ(a)"], ["다","da","ta","pa","ㄷ(d) + ㅏ(a)"], ["라","ra","ma","sa","ㄹ(r/l) + ㅏ(a)"], ["마","ma","pa","ba","ㅁ(m) + ㅏ(a)"],
                 ["바","ba","pa","ma","ㅂ(b) + ㅏ(a)"], ["사","sa","ja","cha","ㅅ(s) + ㅏ(a)"], ["아","a","ha","ya","ㅇ(silent) + ㅏ(a)"], ["자","ja","cha","sa","ㅈ(j) + ㅏ(a)"], ["차","cha","ja","ta","ㅊ(ch) + ㅏ(a)"],
@@ -498,7 +560,7 @@
             ]
         };
 
-        const quizData = { 1: [], 2: [], 3: [], 4: [] };
+        const quizData = { 0: [], 1: [], 2: [], 3: [], 4: [] };
         
         // 데이터 파싱
         for (let stage in rawData) {
@@ -526,10 +588,12 @@
 
         let currentStage = 1;
         let currentQuestionIndex = 0;
+        let currentFcIndex = 0; // Flashcard tracking
         let score = 0;
         let activeQuestions = [];
 
         const menuScreen = document.getElementById('menu-screen');
+        const flashcardScreen = document.getElementById('flashcard-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const resultScreen = document.getElementById('result-screen');
         const optionsContainer = document.getElementById('options-container');
@@ -538,11 +602,14 @@
         const nextBtn = document.getElementById('next-btn');
 
         function showMenu() {
-            menuScreen.classList.remove('hidden'); quizScreen.classList.add('hidden'); resultScreen.classList.add('hidden');
+            menuScreen.classList.remove('hidden'); 
+            flashcardScreen.classList.add('hidden');
+            quizScreen.classList.add('hidden'); 
+            resultScreen.classList.add('hidden');
         }
 
         function startStage(stage) {
-            currentStage = stage; currentQuestionIndex = 0; score = 0;
+            currentStage = stage; currentQuestionIndex = 0; score = 0; currentFcIndex = 0;
             
             // 데이터 풀에서 랜덤하게 지정된 갯수만큼 뽑기
             const shuffledPool = [...quizData[stage]].sort(() => Math.random() - 0.5);
@@ -550,7 +617,8 @@
             
             // 단계별 제목 설정
             let stageName = "";
-            if(stage === 1) stageName = "Stage 1: Basic Syllables";
+            if(stage === 0) stageName = "Stage 0: Learn & Play (Beginner)";
+            else if(stage === 1) stageName = "Stage 1: Basic Syllables";
             else if(stage === 2) stageName = "Stage 2: Complex Syllables";
             else if(stage === 3) stageName = "Stage 3: Basic Words (Pronunciation)";
             else if(stage === 4) stageName = "Stage 4: Vocabulary Master 🌟";
@@ -558,10 +626,47 @@
             document.getElementById('stage-title').innerText = stageName;
             
             menuScreen.classList.add('hidden'); 
-            quizScreen.classList.remove('hidden');
             
+            if (stage === 0) {
+                flashcardScreen.classList.remove('hidden');
+                loadFlashcard();
+            } else {
+                quizScreen.classList.remove('hidden');
+                loadQuestion();
+            }
+        }
+
+        // --- NEW: Flashcard Logic ---
+        function loadFlashcard() {
+            const q = activeQuestions[currentFcIndex];
+            
+            document.getElementById('fc-progress-text').innerText = `Card ${currentFcIndex + 1} / ${activeQuestions.length}`;
+            document.getElementById('fc-korean').innerText = q.answer; // Korean character
+            document.getElementById('fc-romanized').innerText = q.word; // Romanized sound
+            document.getElementById('fc-hint').innerText = `💡 ${q.exp}`; // Mnemonic hint
+            
+            if (currentFcIndex === activeQuestions.length - 1) {
+                document.getElementById('fc-next-btn').classList.add('hidden');
+                document.getElementById('fc-start-quiz-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('fc-next-btn').classList.remove('hidden');
+                document.getElementById('fc-start-quiz-btn').classList.add('hidden');
+            }
+        }
+
+        function nextFlashcard() {
+            currentFcIndex++;
+            if (currentFcIndex < activeQuestions.length) {
+                loadFlashcard();
+            }
+        }
+
+        function startQuizFromFlashcard() {
+            flashcardScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
             loadQuestion();
         }
+        // -----------------------------
 
         function loadQuestion() {
             feedbackEl.innerText = ""; expEl.classList.add('hidden');
