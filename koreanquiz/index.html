@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Korean Pronunciation Practice</title>
+    <title>Korean Pronunciation & Vocabulary Practice</title>
     <style>
         :root {
             --primary: #6366f1; --primary-hover: #4f46e5;
@@ -71,11 +71,12 @@
 
     <div class="container" id="app">
         <div id="menu-screen">
-            <h1>Korean Pronunciation</h1>
-            <p class="subtitle">Practice randomly selected questions!</p>
+            <h1>Korean Practice</h1>
+            <p class="subtitle">Practice pronunciation and vocabulary!</p>
             <button class="menu-btn" onclick="startStage(1)">Stage 1: Basic Syllables</button>
             <button class="menu-btn" onclick="startStage(2)">Stage 2: Complex Syllables</button>
-            <button class="menu-btn" onclick="startStage(3)">Stage 3: Basic Words</button>
+            <button class="menu-btn" onclick="startStage(3)">Stage 3: Basic Words (Pronunciation)</button>
+            <button class="menu-btn" onclick="startStage(4)" style="background-color: #e0e7ff; border-color: #c7d2fe;">Stage 4: Vocabulary Master 🌟</button>
         </div>
 
         <div id="quiz-screen" class="hidden">
@@ -102,11 +103,13 @@
     </div>
 
     <script>
-        // === [설정] 한 번에 풀 문제 수 (100개 풀에서 랜덤으로 n개 뽑음) ===
+        // 한 번에 풀 문제 수 설정
         const QUESTIONS_PER_ROUND = 10;
 
-        // === 파트 2 데이터가 들어갈 자리 ===
-        const rawData = {
+        // [형식 안내] 
+        // 1~3단계: ["한국어", "정답발음", "오답1", "오답2", "설명/힌트", "영어뜻(3단계용)"]
+        // 4단계: ["한국어", "정답뜻", "오답뜻1", "오답뜻2", "힌트"] -> 발음기호 없이 뜻을 맞추는 구조
+            const rawData = {
             1: [ // 1단계: 기본 자모음 (100개)
                 ["가","ga","na","da","ㄱ(g) + ㅏ(a)"], ["나","na","ma","ra","ㄴ(n) + ㅏ(a)"], ["다","da","ta","pa","ㄷ(d) + ㅏ(a)"], ["라","ra","ma","sa","ㄹ(r/l) + ㅏ(a)"], ["마","ma","pa","ba","ㅁ(m) + ㅏ(a)"],
                 ["바","ba","pa","ma","ㅂ(b) + ㅏ(a)"], ["사","sa","ja","cha","ㅅ(s) + ㅏ(a)"], ["아","a","ha","ya","ㅇ(silent) + ㅏ(a)"], ["자","ja","cha","sa","ㅈ(j) + ㅏ(a)"], ["차","cha","ja","ta","ㅊ(ch) + ㅏ(a)"],
@@ -172,9 +175,458 @@
                 ["시장","sijang","jijang","sichang","시(si)+장(jang)","Market"], ["가게","gage","kage","gake","가(ga)+게(ge)","Store"], ["회사","hoesa","hwesa","oesa","회(hoe)+사(sa)","Company"], ["역","yeok","yok","yeog","ㅇ+ㅕ(yeo)+ㄱ(k)","Station"], ["기차","gicha","kicha","gija","기(gi)+차(cha)","Train"],
                 ["비행기","bihaenggi","pihaenggi","bihengki","비(bi)+행(haeng)+기(gi)","Airplane"], ["자전거","jajeongeo","chajeongeo","jajeongo","자(ja)+전(jeon)+거(geo)","Bicycle"], ["버스","beoseu","peoseu","boseu","버(beo)+스(seu)","Bus"], ["택시","taeksi","daeksi","teksi","택(taek)+시(si)","Taxi"], ["지하철","jihacheol","chihacheol","jiacheol","지(ji)+하(ha)+철(cheol)","Subway"],
                 ["이름","ireum","ileum","ileun","이(i)+름(reum)","Name"], ["나이","nai","mai","nae","나(na)+이(i)","Age"], ["생일","saengil","sengil","saengir","생(saeng)+일(il)","Birthday"], ["고향","gohyang","kohyang","goyang","고(go)+향(hyang)","Hometown"], ["한국","hanguk","hangug","hankuk","한(han)+국(guk)","Korea"]
+            ],
+            4: [ // 4단계: 기초 단어 (영어 뜻 맞추기, 발음기호 없음) - 150개 세팅
+                ["개", "Dog", "Cat", "Pig", "Animal that barks (멍멍)"],
+                ["고양이", "Cat", "Dog", "Mouse", "Animal that meows (야옹)"],
+                ["새", "Bird", "Fish", "Cow", "Animal that flies"],
+                ["물고기", "Fish", "Bird", "Dog", "Animal that swims in water"],
+                ["소", "Cow", "Horse", "Pig", "Produces milk (음매)"],
+                ["돼지", "Pig", "Cow", "Sheep", "Animal known for pork (꿀꿀)"],
+                ["말", "Horse", "Cow", "Dog", "Animal you can ride (히힝)"],
+                ["사자", "Lion", "Tiger", "Bear", "King of the jungle"],
+                ["호랑이", "Tiger", "Lion", "Elephant", "Fierce striped animal"],
+                ["곰", "Bear", "Tiger", "Lion", "Large strong animal that likes honey"],
+                ["원숭이", "Monkey", "Gorilla", "Bear", "Animal that loves bananas"],
+                ["쥐", "Mouse", "Cat", "Dog", "Small animal that likes cheese"],
+                ["토끼", "Rabbit", "Mouse", "Cat", "Animal with long ears"],
+                ["사과", "Apple", "Banana", "Grape", "Red or green fruit"],
+                ["바나나", "Banana", "Apple", "Orange", "Yellow long fruit"],
+                ["포도", "Grape", "Strawberry", "Apple", "Small purple or green fruit"],
+                ["딸기", "Strawberry", "Apple", "Grape", "Red fruit with tiny seeds"],
+                ["수박", "Watermelon", "Melon", "Peach", "Large green fruit, red inside"],
+                ["오렌지", "Orange", "Apple", "Banana", "Citrus fruit"],
+                ["복숭아", "Peach", "Plum", "Apple", "Soft, fuzzy pinkish fruit"],
+                ["배", "Pear", "Apple", "Peach", "Sweet, crunchy fruit"],
+                ["감자", "Potato", "Sweet Potato", "Onion", "Root vegetable for fries"],
+                ["고구마", "Sweet Potato", "Potato", "Carrot", "Sweet root vegetable"],
+                ["양파", "Onion", "Garlic", "Potato", "Vegetable that makes you cry"],
+                ["마늘", "Garlic", "Onion", "Pepper", "Strong-smelling bulb"],
+                ["당근", "Carrot", "Radish", "Onion", "Orange vegetable rabbits like"],
+                ["밥", "Rice / Meal", "Bread", "Noodle", "Staple food in Korea"],
+                ["빵", "Bread", "Rice", "Cake", "Baked food made of flour"],
+                ["면", "Noodle", "Rice", "Bread", "Long, thin food"],
+                ["고기", "Meat", "Vegetable", "Fish", "Food from animals"],
+                ["채소", "Vegetable", "Meat", "Fruit", "Healthy green food"],
+                ["과일", "Fruit", "Vegetable", "Meat", "Sweet plant food (Apples, Bananas...)"],
+                ["소금", "Salt", "Sugar", "Pepper", "Salty seasoning"],
+                ["설탕", "Sugar", "Salt", "Honey", "Sweet seasoning"],
+                ["물", "Water", "Juice", "Milk", "Clear liquid we drink"],
+                ["우유", "Milk", "Water", "Tea", "White liquid from cows"],
+                ["차", "Tea", "Coffee", "Water", "Drink made from leaves"],
+                ["커피", "Coffee", "Tea", "Juice", "Dark caffeinated drink"],
+                ["얼음", "Ice", "Water", "Fire", "Frozen water"],
+                ["불", "Fire", "Water", "Ice", "Hot and bright"],
+                ["하늘", "Sky", "Earth", "Sea", "Blue space above us"],
+                ["땅", "Earth / Ground", "Sky", "Sea", "Surface we walk on"],
+                ["바다", "Sea / Ocean", "River", "Lake", "Large body of salt water"],
+                ["강", "River", "Sea", "Lake", "Flowing fresh water"],
+                ["산", "Mountain", "Hill", "Sea", "High, rocky land"],
+                ["나무", "Tree", "Flower", "Grass", "Tall plant with wood"],
+                ["꽃", "Flower", "Tree", "Leaf", "Colorful part of a plant"],
+                ["풀", "Grass", "Tree", "Flower", "Green plant on the ground"],
+                ["해", "Sun", "Moon", "Star", "Bright star in the day"],
+                ["달", "Moon", "Sun", "Star", "Bright object in the night sky"],
+                ["별", "Star", "Moon", "Sun", "Twinkling light in the night sky"],
+                ["눈", "Snow / Eye", "Rain", "Wind", "White flakes from the sky"],
+                ["비", "Rain", "Snow", "Wind", "Water falling from the sky"],
+                ["바람", "Wind", "Rain", "Snow", "Moving air"],
+                ["구름", "Cloud", "Sun", "Moon", "White fluffy thing in the sky"],
+                ["봄", "Spring", "Summer", "Winter", "Season of flowers"],
+                ["여름", "Summer", "Winter", "Spring", "Hot season"],
+                ["가을", "Autumn / Fall", "Spring", "Summer", "Season of falling leaves"],
+                ["겨울", "Winter", "Summer", "Autumn", "Cold season with snow"],
+                ["아침", "Morning", "Evening", "Night", "Start of the day"],
+                ["점심", "Afternoon / Lunch", "Morning", "Night", "Middle of the day"],
+                ["저녁", "Evening / Dinner", "Morning", "Night", "End of the day"],
+                ["밤", "Night", "Morning", "Afternoon", "When it is dark"],
+                ["오늘", "Today", "Tomorrow", "Yesterday", "This present day"],
+                ["내일", "Tomorrow", "Today", "Yesterday", "The day after today"],
+                ["어제", "Yesterday", "Today", "Tomorrow", "The day before today"],
+                ["지금", "Now", "Later", "Before", "At this exact moment"],
+                ["나", "I / Me", "You", "We", "Refers to oneself (Informal)"],
+                ["저", "I / Me", "You", "We", "Refers to oneself (Formal)"],
+                ["너", "You", "I", "He", "Refers to the listener (Informal)"],
+                ["우리", "We / Us", "They", "You", "Refers to a group including oneself"],
+                ["사람", "Person", "Animal", "Thing", "A human being"],
+                ["친구", "Friend", "Enemy", "Teacher", "Someone you like and know well"],
+                ["가족", "Family", "Friend", "Colleague", "Parents, siblings, etc."],
+                ["엄마", "Mom", "Dad", "Sister", "Mother (Informal)"],
+                ["아빠", "Dad", "Mom", "Brother", "Father (Informal)"],
+                ["형", "Older Brother (for males)", "Older Sister", "Younger Brother", "Used by men to call older brothers"],
+                ["오빠", "Older Brother (for females)", "Older Sister", "Younger Brother", "Used by women to call older brothers"],
+                ["누나", "Older Sister (for males)", "Older Brother", "Younger Sister", "Used by men to call older sisters"],
+                ["언니", "Older Sister (for females)", "Older Brother", "Younger Sister", "Used by women to call older sisters"],
+                ["동생", "Younger Sibling", "Older Sibling", "Friend", "Younger brother or sister"],
+                ["남자", "Man", "Woman", "Child", "Male adult"],
+                ["여자", "Woman", "Man", "Child", "Female adult"],
+                ["아이", "Child", "Adult", "Baby", "A young person"],
+                ["아기", "Baby", "Child", "Adult", "A very young child"],
+                ["집", "House / Home", "School", "Company", "Place where you live"],
+                ["학교", "School", "Hospital", "Company", "Place to study"],
+                ["회사", "Company", "School", "Hospital", "Place to work"],
+                ["병원", "Hospital", "Pharmacy", "School", "Place for sick people"],
+                ["약국", "Pharmacy", "Hospital", "Store", "Place to buy medicine"],
+                ["가게", "Store / Shop", "Bank", "Hospital", "Place to buy things"],
+                ["식당", "Restaurant", "Cafe", "Store", "Place to eat meals"],
+                ["은행", "Bank", "Post Office", "Store", "Place to save money"],
+                ["우체국", "Post Office", "Bank", "Hospital", "Place to send mail"],
+                ["시장", "Market", "Store", "Bank", "Traditional place to buy food"],
+                ["역", "Station", "Airport", "Stop", "Subway or train stop"],
+                ["기차", "Train", "Bus", "Car", "Long vehicle on tracks"],
+                ["버스", "Bus", "Train", "Taxi", "Large public vehicle"],
+                ["택시", "Taxi", "Bus", "Subway", "Car you pay to ride"],
+                ["비행기", "Airplane", "Train", "Ship", "Vehicle that flies"],
+                ["배", "Ship / Boat", "Airplane", "Train", "Vehicle on water"],
+                ["자전거", "Bicycle", "Car", "Bus", "Two-wheeled vehicle"],
+                ["자동차", "Car", "Bus", "Bicycle", "Four-wheeled personal vehicle"],
+                ["길", "Road / Street", "Mountain", "River", "Path for walking or driving"],
+                ["문", "Door", "Window", "Wall", "Entrance to a room"],
+                ["창문", "Window", "Door", "Wall", "Glass opening in a wall"],
+                ["책상", "Desk", "Chair", "Bed", "Table for studying/working"],
+                ["의자", "Chair", "Desk", "Bed", "Furniture to sit on"],
+                ["침대", "Bed", "Desk", "Chair", "Furniture to sleep on"],
+                ["책", "Book", "Notebook", "Pen", "Something you read"],
+                ["공책", "Notebook", "Book", "Pen", "Something you write in"],
+                ["펜", "Pen", "Pencil", "Eraser", "Tool for writing with ink"],
+                ["연필", "Pencil", "Pen", "Eraser", "Tool for writing with lead"],
+                ["가방", "Bag", "Shoes", "Hat", "Item to carry things in"],
+                ["옷", "Clothes", "Shoes", "Hat", "Items you wear"],
+                ["신발", "Shoes", "Socks", "Pants", "Worn on your feet"],
+                ["모자", "Hat", "Shoes", "Glasses", "Worn on your head"],
+                ["안경", "Glasses", "Hat", "Shoes", "Worn to see better"],
+                ["시계", "Clock / Watch", "Glasses", "Hat", "Tells the time"],
+                ["휴대폰", "Cell Phone", "Computer", "Television", "Mobile device for calling"],
+                ["컴퓨터", "Computer", "Cell Phone", "Television", "Electronic machine for work"],
+                ["텔레비전", "Television", "Computer", "Radio", "Device to watch shows"],
+                ["사진", "Photo / Picture", "Movie", "Music", "Image taken with a camera"],
+                ["영화", "Movie", "Music", "Photo", "Moving pictures in a theater"],
+                ["음악", "Music", "Movie", "Photo", "Sounds you listen to"],
+                ["노래", "Song", "Dance", "Music", "Music with singing"],
+                ["눈", "Eye / Snow", "Nose", "Mouth", "Body part for seeing"],
+                ["코", "Nose", "Eye", "Mouth", "Body part for smelling"],
+                ["입", "Mouth", "Ear", "Nose", "Body part for eating/speaking"],
+                ["귀", "Ear", "Eye", "Mouth", "Body part for hearing"],
+                ["얼굴", "Face", "Head", "Hand", "Front part of the head"],
+                ["머리", "Head / Hair", "Face", "Neck", "Top part of the body"],
+                ["손", "Hand", "Foot", "Arm", "Body part at the end of the arm"],
+                ["발", "Foot", "Hand", "Leg", "Body part at the end of the leg"],
+                ["가다", "To go", "To come", "To eat", "Move away from here"],
+                ["오다", "To come", "To go", "To sleep", "Move toward here"],
+                ["먹다", "To eat", "To drink", "To sleep", "Put food in mouth"],
+                ["마시다", "To drink", "To eat", "To see", "Swallow liquid"],
+                ["자다", "To sleep", "To wake up", "To rest", "Rest in bed"],
+                ["보다", "To see / look", "To hear", "To speak", "Use your eyes"],
+                ["듣다", "To hear / listen", "To see", "To speak", "Use your ears"],
+                ["말하다", "To speak / talk", "To hear", "To see", "Use your voice"],
+                ["읽다", "To read", "To write", "To speak", "Look at text and understand"],
+                ["쓰다", "To write", "To read", "To draw", "Make marks with a pen"],
+                ["크다", "To be big", "To be small", "To be good", "Large in size"],
+                ["작다", "To be small", "To be big", "To be bad", "Little in size"],
+                ["많다", "To be many / much", "To be few", "To be fast", "A large amount"],
+                ["적다", "To be few / little", "To be many", "To be slow", "A small amount"],
+                ["좋다", "To be good", "To be bad", "To be big", "Nice, positive"],
+                ["나쁘다", "To be bad", "To be good", "To be small", "Not good"],
+                ["빠르다", "To be fast", "To be slow", "To be good", "High speed"],
+                ["느리다", "To be slow", "To be fast", "To be bad", "Low speed"],
+                ["쉽다", "To be easy", "To be difficult", "To be fun", "Not hard to do"],
+                ["어렵다", "To be difficult", "To be easy", "To be boring", "Hard to do"],
+                ["재미있다", "To be fun / interesting", "To be boring", "To be easy", "Enjoyable"],
+                ["재미없다", "To be boring / not fun", "To be fun", "To be difficult", "Not enjoyable"],
+                // === 동사 (Verbs) ===
+                ["일어나다", "To wake up / get up", "To sleep", "To sit", "First thing you do in the morning"],
+                ["씻다", "To wash", "To dry", "To eat", "Cleaning yourself"],
+                ["입다", "To wear (clothes)", "To take off", "To buy", "Putting on clothes"],
+                ["벗다", "To take off (clothes)", "To wear", "To wash", "Removing clothes"],
+                ["배우다", "To learn", "To teach", "To forget", "Acquiring new knowledge"],
+                ["가르치다", "To teach", "To learn", "To read", "Giving knowledge to others"],
+                ["일하다", "To work", "To rest", "To play", "Doing your job"],
+                ["쉬다", "To rest", "To work", "To exercise", "Taking a break"],
+                ["놀다", "To play / hang out", "To study", "To work", "Having fun"],
+                ["만나다", "To meet", "To part ways", "To call", "Seeing someone"],
+                ["헤어지다", "To part ways / break up", "To meet", "To date", "Saying goodbye"],
+                ["사다", "To buy", "To sell", "To throw away", "Purchasing something"],
+                ["팔다", "To sell", "To buy", "To keep", "Exchanging goods for money"],
+                ["주다", "To give", "To receive", "To steal", "Handing something to someone"],
+                ["받다", "To receive", "To give", "To throw", "Getting something from someone"],
+                ["좋아하다", "To like", "To hate", "To fear", "Having a good feeling about something"],
+                ["싫어하다", "To hate / dislike", "To like", "To love", "Having a bad feeling about something"],
+                ["사랑하다", "To love", "To hate", "To forget", "Feeling deep affection"],
+                ["생각하다", "To think", "To sleep", "To speak", "Using your brain"],
+                ["알다", "To know", "To not know", "To guess", "Having information in mind"],
+                ["모르다", "To not know", "To know", "To learn", "Lacking information"],
+                ["걷다", "To walk", "To run", "To fly", "Moving on foot slowly"],
+                ["달리다", "To run", "To walk", "To crawl", "Moving on foot fast"],
+                ["타다", "To ride / get on", "To get off", "To drive", "Getting into a vehicle"],
+                ["내리다", "To get off", "To get on", "To walk", "Getting out of a vehicle"],
+                ["운동하다", "To exercise", "To rest", "To eat", "Working out your body"],
+                ["요리하다", "To cook", "To clean", "To eat", "Preparing food"],
+                ["청소하다", "To clean", "To cook", "To sleep", "Making a place tidy"],
+                ["노래하다", "To sing", "To dance", "To cry", "Making music with your voice"],
+                ["춤추다", "To dance", "To sing", "To sleep", "Moving body to music"],
+
+                // === 형용사 (Adjectives) ===
+                ["크다", "To be big", "To be small", "To be fast", "Large in size"],
+                ["작다", "To be small", "To be big", "To be heavy", "Little in size"],
+                ["많다", "To be many / much", "To be few", "To be clean", "Large in quantity"],
+                ["적다", "To be few / little", "To be many", "To be long", "Small in quantity"],
+                ["넓다", "To be wide / spacious", "To be narrow", "To be high", "Having a lot of space"],
+                ["좁다", "To be narrow", "To be wide", "To be low", "Having little space"],
+                ["높다", "To be high", "To be low", "To be fast", "Tall (for objects/mountains)"],
+                ["낮다", "To be low", "To be high", "To be slow", "Close to the ground"],
+                ["길다", "To be long", "To be short", "To be heavy", "Extended in space or time"],
+                ["짧다", "To be short", "To be long", "To be light", "Not long"],
+                ["무겁다", "To be heavy", "To be light", "To be hot", "Having a lot of weight"],
+                ["가볍다", "To be light", "To be heavy", "To be cold", "Not having much weight"],
+                ["덥다", "To be hot", "To be cold", "To be cool", "High temperature (weather)"],
+                ["춥다", "To be cold", "To be hot", "To be warm", "Low temperature (weather)"],
+                ["따뜻하다", "To be warm", "To be cool", "To be cold", "Comfortably hot"],
+                ["시원하다", "To be cool / refreshing", "To be warm", "To be hot", "Comfortably cold"],
+                ["빠르다", "To be fast", "To be slow", "To be heavy", "Moving with high speed"],
+                ["느리다", "To be slow", "To be fast", "To be light", "Moving with low speed"],
+                ["바쁘다", "To be busy", "To be bored", "To be sick", "Having a lot of things to do"],
+                ["아프다", "To be sick / hurt", "To be healthy", "To be tired", "Feeling pain"],
+                ["피곤하다", "To be tired", "To be energetic", "To be happy", "Needing rest"],
+                ["예쁘다", "To be pretty", "To be ugly", "To be scary", "Beautiful to look at"],
+                ["귀엽다", "To be cute", "To be scary", "To be pretty", "Adorable"],
+                ["멋있다", "To be cool / stylish", "To be ugly", "To be small", "Looking great (often for males or clothes)"],
+                ["맛있다", "To be delicious", "To be tasteless", "To be spicy", "Tasting good"],
+                ["맛없다", "To be tasteless / bad", "To be delicious", "To be sweet", "Tasting bad"],
+                ["재미있다", "To be fun / interesting", "To be boring", "To be sad", "Enjoyable"],
+                ["재미없다", "To be boring", "To be fun", "To be scary", "Not enjoyable"],
+                ["어렵다", "To be difficult", "To be easy", "To be fun", "Hard to do or understand"],
+                ["쉽다", "To be easy", "To be difficult", "To be boring", "Not hard to do"],
+
+                // === 명사: 음식 및 음료 (Food & Drinks) ===
+                ["닭고기", "Chicken (meat)", "Beef", "Pork", "Poultry meat"],
+                ["소고기", "Beef", "Pork", "Chicken", "Meat from a cow"],
+                ["돼지고기", "Pork", "Beef", "Chicken", "Meat from a pig"],
+                ["음료수", "Beverage / Drink", "Food", "Snack", "Liquid you drink"],
+                ["볶음밥", "Fried rice", "Noodle", "Soup", "Rice cooked in a pan with oil"],
+                ["비빔밥", "Bibimbap", "Sushi", "Noodle", "Korean mixed rice with vegetables"],
+                ["삼계탕", "Ginseng chicken soup", "Kimchi stew", "Fried chicken", "Healthy hot soup with chicken"],
+                ["떡만두국", "Rice cake and dumpling soup", "Fried rice", "Noodle soup", "Warm soup with rice cakes and dumplings"],
+                ["김치", "Kimchi", "Salad", "Soup", "Spicy fermented cabbage"],
+                ["샌드위치", "Sandwich", "Pizza", "Hamburger", "Food between two slices of bread"],
+                ["감자튀김", "French fries", "Salad", "Steak", "Fried potato sticks"],
+                ["과자", "Snack", "Meal", "Drink", "Chips or cookies"],
+                ["아이스크림", "Ice cream", "Cake", "Bread", "Cold sweet dessert"],
+                ["케이크", "Cake", "Ice cream", "Cookie", "Sweet baked dessert for birthdays"],
+                ["계란 / 달걀", "Egg", "Milk", "Cheese", "Laid by birds"],
+                ["치즈", "Cheese", "Butter", "Milk", "Dairy product"],
+
+                // === 명사: 물건 및 기술 (Items & Tech) ===
+                ["시계", "Watch / Clock", "Glasses", "Ring", "Device to tell time"],
+                ["휴대폰", "Cell phone", "Computer", "Television", "Mobile device"],
+                ["인공지능", "Artificial Intelligence", "Robot", "Computer", "AI"],
+                ["데이터", "Data", "Screen", "Keyboard", "Information for computers"],
+                ["화면", "Screen", "Keyboard", "Mouse", "Display part of a device"],
+                ["사진", "Photo", "Movie", "Music", "Image taken by a camera"],
+                ["지갑", "Wallet", "Bag", "Shoes", "Where you put your money"],
+                ["우산", "Umbrella", "Hat", "Coat", "Used when it rains"],
+                ["거울", "Mirror", "Window", "Door", "Glass that reflects your face"],
+                ["열쇠", "Key", "Lock", "Door", "Used to open doors"],
+                ["돈", "Money", "Card", "Wallet", "Cash or coins"],
+                ["카드", "Credit/Debit Card", "Cash", "Coin", "Plastic payment method"],
+
+                // === 명사: 장소 및 여행 (Travel & Places) ===
+                ["여행", "Travel / Trip", "Work", "Study", "Going to a new place"],
+                ["공항", "Airport", "Train station", "Bus stop", "Place for airplanes"],
+                ["여권", "Passport", "Ticket", "Map", "ID for international travel"],
+                ["비행기", "Airplane", "Train", "Ship", "Flying vehicle"],
+                ["지도", "Map", "Book", "Ticket", "Shows locations and roads"],
+                ["호텔", "Hotel", "Hospital", "School", "Place to sleep when traveling"],
+                ["기차", "Train", "Bus", "Taxi", "Vehicle on railways"],
+                ["자동차", "Car", "Bicycle", "Bus", "Four-wheeled vehicle"],
+                ["엔진", "Engine", "Wheel", "Door", "Machine that makes a car move"],
+                ["도서관", "Library", "School", "Bank", "Place with many books"],
+                ["공원", "Park", "Market", "Hospital", "Place with trees for walking"],
+                ["우체국", "Post office", "Bank", "Store", "Place to send letters"],
+                ["병원", "Hospital", "Pharmacy", "School", "Place for sick people"],
+                ["약국", "Pharmacy", "Hospital", "Bank", "Place to buy medicine"],
+                ["식당", "Restaurant", "Cafe", "Market", "Place to eat"],
+
+                // === 명사: 신체 부위 (Body) ===
+                ["눈", "Eye", "Nose", "Mouth", "Used for seeing"],
+                ["코", "Nose", "Eye", "Ear", "Used for smelling"],
+                ["입", "Mouth", "Ear", "Nose", "Used for eating/speaking"],
+                ["귀", "Ear", "Eye", "Mouth", "Used for hearing"],
+                ["머리", "Head / Hair", "Neck", "Shoulder", "Top part of the body"],
+                ["목", "Neck", "Shoulder", "Back", "Connects head and body"],
+                ["어깨", "Shoulder", "Back", "Arm", "Joint connecting arm and body"],
+                ["팔", "Arm", "Leg", "Hand", "Upper limb"],
+                ["손", "Hand", "Foot", "Arm", "Used for holding"],
+                ["손가락", "Finger", "Toe", "Hand", "Five on each hand"],
+                ["다리", "Leg", "Arm", "Foot", "Lower limb"],
+                ["발", "Foot", "Hand", "Leg", "Used for standing/walking"],
+                ["발가락", "Toe", "Finger", "Foot", "Five on each foot"],
+                ["심장", "Heart", "Stomach", "Brain", "Pumps blood"],
+                ["배", "Stomach", "Back", "Chest", "Where food goes"],
+
+                // === 명사: 자연 및 시간 (Nature & Time) ===
+                ["바다", "Sea / Ocean", "River", "Lake", "Salty water"],
+                ["강", "River", "Sea", "Pond", "Flowing fresh water"],
+                ["산", "Mountain", "Hill", "Forest", "High rocky land"],
+                ["숲", "Forest", "Mountain", "Park", "Place with many trees"],
+                ["하늘", "Sky", "Earth", "Sea", "Above us"],
+                ["우주", "Universe / Space", "Earth", "Sky", "Where stars and planets are"],
+                ["지구", "Earth", "Moon", "Sun", "The planet we live on"],
+                ["봄", "Spring", "Summer", "Winter", "Season of flowers"],
+                ["여름", "Summer", "Winter", "Spring", "Hot season"],
+                ["가을", "Autumn", "Spring", "Summer", "Season of falling leaves"],
+                ["겨울", "Winter", "Summer", "Autumn", "Cold season"],
+                ["월요일", "Monday", "Tuesday", "Sunday", "First day of the work week"],
+                ["화요일", "Tuesday", "Wednesday", "Monday", "Second day of the week"],
+                ["수요일", "Wednesday", "Thursday", "Tuesday", "Third day of the week"],
+                ["목요일", "Thursday", "Friday", "Wednesday", "Fourth day of the week"],
+                ["금요일", "Friday", "Saturday", "Thursday", "Fifth day of the week"],
+                ["토요일", "Saturday", "Sunday", "Friday", "Weekend day (Sat)"],
+                ["일요일", "Sunday", "Monday", "Saturday", "Weekend day (Sun)"],
+
+                // === 색깔 (Colors) ===
+                ["빨간색", "Red", "Blue", "Yellow", "Color of an apple"],
+                ["파란색", "Blue", "Red", "Green", "Color of the sky"],
+                ["노란색", "Yellow", "Green", "Black", "Color of a banana"],
+                ["초록색", "Green", "Blue", "White", "Color of grass"],
+                ["하얀색", "White", "Black", "Red", "Color of snow"],
+                ["까만색", "Black", "White", "Yellow", "Color of the night sky"],
+                ["주황색", "Orange", "Yellow", "Red", "Color of an orange"],
+                ["보라색", "Purple", "Pink", "Blue", "Color of a grape"],
+                ["분홍색", "Pink", "Red", "Purple", "Color of a peach"]
             ]
         };
 
+        const quizData = { 1: [], 2: [], 3: [], 4: [] };
+        
+        // 데이터 파싱
+        for (let stage in rawData) {
+            quizData[stage] = rawData[stage].map(item => {
+                if (stage == 4) {
+                    // 4단계는 발음 대신 뜻을 맞추는 모드
+                    return {
+                        word: item[0], 
+                        answer: item[1],
+                        options: [item[1], item[2], item[3]], 
+                        exp: item[4], // Hint
+                        meaning: "" // 4단계는 문제를 풀기 전에 뜻을 보여주지 않음
+                    };
+                } else {
+                    return {
+                        word: item[0], 
+                        answer: item[1],
+                        options: [item[1], item[2], item[3]], 
+                        exp: item[4], 
+                        meaning: item[5] || ""
+                    };
+                }
+            });
+        }
+
+        let currentStage = 1;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuestions = [];
+
+        const menuScreen = document.getElementById('menu-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackEl = document.getElementById('feedback');
+        const expEl = document.getElementById('explanation');
+        const nextBtn = document.getElementById('next-btn');
+
+        function showMenu() {
+            menuScreen.classList.remove('hidden'); quizScreen.classList.add('hidden'); resultScreen.classList.add('hidden');
+        }
+
+        function startStage(stage) {
+            currentStage = stage; currentQuestionIndex = 0; score = 0;
+            
+            // 데이터 풀에서 랜덤하게 지정된 갯수만큼 뽑기
+            const shuffledPool = [...quizData[stage]].sort(() => Math.random() - 0.5);
+            activeQuestions = shuffledPool.slice(0, QUESTIONS_PER_ROUND);
+            
+            // 단계별 제목 설정
+            let stageName = "";
+            if(stage === 1) stageName = "Stage 1: Basic Syllables";
+            else if(stage === 2) stageName = "Stage 2: Complex Syllables";
+            else if(stage === 3) stageName = "Stage 3: Basic Words (Pronunciation)";
+            else if(stage === 4) stageName = "Stage 4: Vocabulary Master 🌟";
+
+            document.getElementById('stage-title').innerText = stageName;
+            
+            menuScreen.classList.add('hidden'); 
+            quizScreen.classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            feedbackEl.innerText = ""; expEl.classList.add('hidden');
+            nextBtn.classList.add('hidden'); optionsContainer.innerHTML = "";
+
+            const q = activeQuestions[currentQuestionIndex];
+            document.getElementById('progress-text').innerText = `Question ${currentQuestionIndex + 1} / ${activeQuestions.length}`;
+            document.getElementById('question-word').innerText = q.word;
+
+            const meaningEl = document.getElementById('word-meaning');
+            
+            // 3단계의 경우 영어 뜻 표시, 4단계는 숨김
+            if (q.meaning && currentStage !== 4) { 
+                meaningEl.innerText = `Meaning: ${q.meaning}`; 
+                meaningEl.classList.remove('hidden'); 
+            } else { 
+                meaningEl.classList.add('hidden'); 
+            }
+
+            // 보기 섞기
+            const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn'; 
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(btn, opt, q);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(clickedBtn, selectedWord, q) {
+            const allBtns = optionsContainer.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => {
+                btn.disabled = true;
+                if(btn.innerText === q.answer) btn.classList.add('correct');
+            });
+
+            if (selectedWord === q.answer) {
+                feedbackEl.innerText = "✨ Correct!"; feedbackEl.className = "feedback-area feedback-correct";
+                score++;
+            } else {
+                clickedBtn.classList.add('wrong');
+                feedbackEl.innerText = `❌ Wrong! (Answer: ${q.answer})`; feedbackEl.className = "feedback-area feedback-wrong";
+            }
+            
+            // 오답이든 정답이든 설명/힌트 표시
+            expEl.innerText = `💡 Tip: ${q.exp}`;
+            expEl.classList.remove('hidden');
+            
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuestions.length) loadQuestion();
+            else showResults();
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden'); resultScreen.classList.remove('hidden');
+            document.getElementById('final-score').innerText = `${score} / ${activeQuestions.length}`;
+        }
+    </script>
+</body>
+</html>
+
+        
         // 데이터를 가볍게 쓰기 위해 배열로 압축한 것을 객체로 파싱하는 함수
         const quizData = { 1: [], 2: [], 3: [] };
         for (let stage in rawData) {
