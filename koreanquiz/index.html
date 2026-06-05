@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Pronunciation Practice</title>
+    <style>
+        :root {
+            --primary: #6366f1; --primary-hover: #4f46e5;
+            --bg-color: #f8fafc; --card-bg: #ffffff;
+            --text-main: #1e293b; --text-muted: #64748b;
+            --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        .container {
+            background: var(--card-bg); max-width: 480px; width: 100%;
+            border-radius: 20px; padding: 40px 30px; text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 1.8rem; margin-bottom: 10px; }
+        p.subtitle { color: var(--text-muted); margin-bottom: 30px; }
+        .hidden { display: none !important; }
+
+        .menu-btn {
+            display: block; width: 100%; padding: 16px; margin-bottom: 15px;
+            background-color: #f1f5f9; border: 2px solid transparent; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+        }
+        .menu-btn:hover { background-color: #e2e8f0; border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+
+        .stage-title { font-size: 1.2rem; color: var(--primary); font-weight: bold; margin-bottom: 20px; }
+        .word-display { font-size: 4rem; font-weight: 700; margin: 20px 0 10px 0; }
+        .meaning-display {
+            font-size: 1.2rem; color: var(--text-muted); margin-bottom: 25px;
+            background-color: #f1f5f9; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 500;
+        }
+
+        .options-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+        .option-btn {
+            background-color: #ffffff; border: 2px solid #e2e8f0; border-radius: 12px;
+            padding: 15px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); background-color: #eff6ff; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+        .option-btn.correct { background-color: #dcfce7; border-color: var(--success); color: #166534; font-weight: bold; }
+        .option-btn.wrong { background-color: #fee2e2; border-color: var(--danger); color: #991b1b; }
+
+        .feedback-area { min-height: 30px; margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; }
+        .feedback-correct { color: var(--success); }
+        .feedback-wrong { color: var(--danger); }
+        
+        .explanation-box {
+            background-color: #fffbeb; border-left: 4px solid var(--warning);
+            padding: 12px; text-align: left; margin-bottom: 20px; border-radius: 4px 8px 8px 4px;
+            font-size: 0.95rem; color: #92400e; font-weight: 500;
+        }
+
+        .action-btn {
+            background-color: var(--primary); color: white; border: none; border-radius: 10px;
+            padding: 14px 24px; font-size: 1.1rem; font-weight: 600; cursor: pointer; width: 100%;
+        }
+        .action-btn:hover { background-color: var(--primary-hover); }
+        .score-display { font-size: 3.5rem; font-weight: bold; color: var(--primary); margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        <div id="menu-screen">
+            <h1>Korean Pronunciation</h1>
+            <p class="subtitle">Practice randomly selected questions!</p>
+            <button class="menu-btn" onclick="startStage(1)">Stage 1: Basic Syllables</button>
+            <button class="menu-btn" onclick="startStage(2)">Stage 2: Complex Syllables</button>
+            <button class="menu-btn" onclick="startStage(3)">Stage 3: Basic Words</button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="stage-title" id="stage-title">Stage 1</div>
+            <p class="subtitle" id="progress-text">Question 1 / 10</p>
+            
+            <div class="word-display" id="question-word">가</div>
+            <div class="meaning-display hidden" id="word-meaning">Meaning</div>
+            
+            <div class="options-grid" id="options-container"></div>
+            
+            <div class="feedback-area" id="feedback"></div>
+            <div class="explanation-box hidden" id="explanation">💡 Tip: ㄱ(g) + ㅏ(a)</div>
+            
+            <button class="action-btn hidden" id="next-btn" onclick="nextQuestion()">Next Question</button>
+        </div>
+
+        <div id="result-screen" class="hidden">
+            <h1>Stage Completed!</h1>
+            <div class="score-display" id="final-score">0 / 10</div>
+            <p id="result-message" style="margin-bottom: 30px; font-weight: 600;"></p>
+            <button class="action-btn" onclick="showMenu()">Back to Main Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // === [설정] 한 번에 풀 문제 수 (100개 풀에서 랜덤으로 n개 뽑음) ===
+        const QUESTIONS_PER_ROUND = 10;
+
+        // === 파트 2 데이터가 들어갈 자리 ===
+        const rawData = {
+            1: [ // 1단계: 기본 자모음 (100개)
+                ["가","ga","na","da","ㄱ(g) + ㅏ(a)"], ["나","na","ma","ra","ㄴ(n) + ㅏ(a)"], ["다","da","ta","pa","ㄷ(d) + ㅏ(a)"], ["라","ra","ma","sa","ㄹ(r/l) + ㅏ(a)"], ["마","ma","pa","ba","ㅁ(m) + ㅏ(a)"],
+                ["바","ba","pa","ma","ㅂ(b) + ㅏ(a)"], ["사","sa","ja","cha","ㅅ(s) + ㅏ(a)"], ["아","a","ha","ya","ㅇ(silent) + ㅏ(a)"], ["자","ja","cha","sa","ㅈ(j) + ㅏ(a)"], ["차","cha","ja","ta","ㅊ(ch) + ㅏ(a)"],
+                ["카","ka","ga","ta","ㅋ(k) + ㅏ(a)"], ["타","ta","da","pa","ㅌ(t) + ㅏ(a)"], ["파","pa","ba","ha","ㅍ(p) + ㅏ(a)"], ["하","ha","a","ka","ㅎ(h) + ㅏ(a)"], ["거","geo","neo","deo","ㄱ(g) + ㅓ(eo)"],
+                ["너","neo","meo","reo","ㄴ(n) + ㅓ(eo)"], ["더","deo","teo","peo","ㄷ(d) + ㅓ(eo)"], ["러","reo","meo","seo","ㄹ(r/l) + ㅓ(eo)"], ["머","meo","peo","beo","ㅁ(m) + ㅓ(eo)"], ["버","beo","peo","meo","ㅂ(b) + ㅓ(eo)"],
+                ["서","seo","jeo","cheo","ㅅ(s) + ㅓ(eo)"], ["어","eo","heo","yeo","ㅇ(silent) + ㅓ(eo)"], ["저","jeo","cheo","seo","ㅈ(j) + ㅓ(eo)"], ["처","cheo","jeo","teo","ㅊ(ch) + ㅓ(eo)"], ["커","keo","geo","teo","ㅋ(k) + ㅓ(eo)"],
+                ["터","teo","deo","peo","ㅌ(t) + ㅓ(eo)"], ["퍼","peo","beo","heo","ㅍ(p) + ㅓ(eo)"], ["허","heo","eo","keo","ㅎ(h) + ㅓ(eo)"], ["고","go","no","do","ㄱ(g) + ㅗ(o)"], ["노","no","mo","ro","ㄴ(n) + ㅗ(o)"],
+                ["도","do","to","po","ㄷ(d) + ㅗ(o)"], ["로","ro","mo","so","ㄹ(r/l) + ㅗ(o)"], ["모","mo","po","bo","ㅁ(m) + ㅗ(o)"], ["보","bo","po","mo","ㅂ(b) + ㅗ(o)"], ["소","so","jo","cho","ㅅ(s) + ㅗ(o)"],
+                ["오","o","ho","yo","ㅇ(silent) + ㅗ(o)"], ["조","jo","cho","so","ㅈ(j) + ㅗ(o)"], ["초","cho","jo","to","ㅊ(ch) + ㅗ(o)"], ["코","ko","go","to","ㅋ(k) + ㅗ(o)"], ["토","to","do","po","ㅌ(t) + ㅗ(o)"],
+                ["포","po","bo","ho","ㅍ(p) + ㅗ(o)"], ["호","ho","o","ko","ㅎ(h) + ㅗ(o)"], ["구","gu","nu","du","ㄱ(g) + ㅜ(u)"], ["누","nu","mu","ru","ㄴ(n) + ㅜ(u)"], ["두","du","tu","pu","ㄷ(d) + ㅜ(u)"],
+                ["루","ru","mu","su","ㄹ(r/l) + ㅜ(u)"], ["무","mu","pu","bu","ㅁ(m) + ㅜ(u)"], ["부","bu","pu","mu","ㅂ(b) + ㅜ(u)"], ["수","su","ju","chu","ㅅ(s) + ㅜ(u)"], ["우","u","hu","yu","ㅇ(silent) + ㅜ(u)"],
+                ["주","ju","chu","su","ㅈ(j) + ㅜ(u)"], ["추","chu","ju","tu","ㅊ(ch) + ㅜ(u)"], ["쿠","ku","gu","tu","ㅋ(k) + ㅜ(u)"], ["투","tu","du","pu","ㅌ(t) + ㅜ(u)"], ["푸","pu","bu","hu","ㅍ(p) + ㅜ(u)"],
+                ["후","hu","u","ku","ㅎ(h) + ㅜ(u)"], ["그","geu","neu","deu","ㄱ(g) + ㅡ(eu)"], ["느","neu","meu","reu","ㄴ(n) + ㅡ(eu)"], ["드","deu","teu","peu","ㄷ(d) + ㅡ(eu)"], ["르","reu","meu","seu","ㄹ(r/l) + ㅡ(eu)"],
+                ["므","meu","peu","beu","ㅁ(m) + ㅡ(eu)"], ["브","beu","peu","meu","ㅂ(b) + ㅡ(eu)"], ["스","seu","jeu","cheu","ㅅ(s) + ㅡ(eu)"], ["으","eu","heu","yeu","ㅇ(silent) + ㅡ(eu)"], ["즈","jeu","cheu","seu","ㅈ(j) + ㅡ(eu)"],
+                ["츠","cheu","jeu","teu","ㅊ(ch) + ㅡ(eu)"], ["크","keu","geu","teu","ㅋ(k) + ㅡ(eu)"], ["트","teu","deu","peu","ㅌ(t) + ㅡ(eu)"], ["프","peu","beu","heu","ㅍ(p) + ㅡ(eu)"], ["흐","heu","eu","keu","ㅎ(h) + ㅡ(eu)"],
+                ["기","gi","ni","di","ㄱ(g) + ㅣ(i)"], ["니","ni","mi","ri","ㄴ(n) + ㅣ(i)"], ["디","di","ti","pi","ㄷ(d) + ㅣ(i)"], ["리","ri","mi","si","ㄹ(r/l) + ㅣ(i)"], ["미","mi","pi","bi","ㅁ(m) + ㅣ(i)"],
+                ["비","bi","pi","mi","ㅂ(b) + ㅣ(i)"], ["시","si","ji","chi","ㅅ(s) + ㅣ(i)"], ["이","i","hi","yi","ㅇ(silent) + ㅣ(i)"], ["지","ji","chi","si","ㅈ(j) + ㅣ(i)"], ["치","chi","ji","ti","ㅊ(ch) + ㅣ(i)"],
+                ["키","ki","gi","ti","ㅋ(k) + ㅣ(i)"], ["티","ti","di","pi","ㅌ(t) + ㅣ(i)"], ["피","pi","bi","hi","ㅍ(p) + ㅣ(i)"], ["히","hi","i","ki","ㅎ(h) + ㅣ(i)"], ["갸","gya","nya","dya","ㄱ(g) + ㅑ(ya)"],
+                ["냐","nya","mya","rya","ㄴ(n) + ㅑ(ya)"], ["뎌","dyeo","tyeo","pyeo","ㄷ(d) + ㅕ(yeo)"], ["려","ryeo","myeo","syeo","ㄹ(r/l) + ㅕ(yeo)"], ["묘","myo","pyo","byo","ㅁ(m) + ㅛ(yo)"], ["뵤","byo","pyo","myo","ㅂ(b) + ㅛ(yo)"],
+                ["슈","syu","jyu","chyu","ㅅ(s) + ㅠ(yu)"], ["유","yu","hyu","wu","ㅇ(silent) + ㅠ(yu)"], ["쥬","jyu","chyu","syu","ㅈ(j) + ㅠ(yu)"], ["쵸","chyo","jyo","tyo","ㅊ(ch) + ㅛ(yo)"], ["큐","kyu","gyu","tyu","ㅋ(k) + ㅠ(yu)"],
+                ["튜","tyu","dyu","pyu","ㅌ(t) + ㅠ(yu)"], ["표","pyo","byo","hyo","ㅍ(p) + ㅛ(yo)"], ["휴","hyu","yu","kyu","ㅎ(h) + ㅠ(yu)"], ["샤","sya","jya","chya","ㅅ(s) + ㅑ(ya)"], ["야","ya","hya","wa","ㅇ(silent) + ㅑ(ya)"]
+            ],
+            2: [ // 2단계: 복합모음(ㅔ, ㅙ 등) + 받침 (100개)
+                ["에","e","ae","we","ㅇ(silent) + ㅔ(e)"], ["애","ae","e","wae","ㅇ(silent) + ㅐ(ae)"], ["게","ge","gae","gwe","ㄱ(g) + ㅔ(e)"], ["개","gae","ge","gwae","ㄱ(g) + ㅐ(ae)"], ["네","ne","nae","nwe","ㄴ(n) + ㅔ(e)"],
+                ["내","nae","ne","nwae","ㄴ(n) + ㅐ(ae)"], ["데","de","dae","dwe","ㄷ(d) + ㅔ(e)"], ["대","dae","de","dwae","ㄷ(d) + ㅐ(ae)"], ["메","me","mae","mwe","ㅁ(m) + ㅔ(e)"], ["매","mae","me","mwae","ㅁ(m) + ㅐ(ae)"],
+                ["세","se","sae","swe","ㅅ(s) + ㅔ(e)"], ["새","sae","se","swae","ㅅ(s) + ㅐ(ae)"], ["제","je","jae","jwe","ㅈ(j) + ㅔ(e)"], ["재","jae","je","jwae","ㅈ(j) + ㅐ(ae)"], ["페","pe","pae","pwe","ㅍ(p) + ㅔ(e)"],
+                ["왜","wae","we","oe","ㅇ + ㅙ(wae). Sounds like 'wae'"], ["웨","we","wae","oe","ㅇ + ㅞ(we). Sounds like 'we'"], ["외","oe","wae","we","ㅇ + ㅚ(oe). Sounds like 'we' or 'oe'"], ["와","wa","wo","wae","ㅇ + ㅘ(wa)"], ["워","wo","wa","weo","ㅇ + ㅝ(wo/weo)"],
+                ["돼","dwae","dwe","doe","ㄷ(d) + ㅙ(wae)"], ["되","doe","dwae","dwe","ㄷ(d) + ㅚ(oe)"], ["최","choe","chwae","chwe","ㅊ(ch) + ㅚ(oe)"], ["과","gwa","gwo","go","ㄱ(g) + ㅘ(wa)"], ["궈","gwo","gwa","go","ㄱ(g) + ㅝ(wo)"],
+                ["의","ui","i","eu","ㅇ + ㅢ(ui). Complex sound eu+i"], ["희","hui","hi","heu","ㅎ(h) + ㅢ(ui)"], ["쉬","swi","swe","soe","ㅅ(s) + ㅟ(wi)"], ["귀","gwi","gwe","goe","ㄱ(g) + ㅟ(wi)"], ["쥐","jwi","jwe","joe","ㅈ(j) + ㅟ(wi)"],
+                ["발","bal","pal","mal","ㅂ(b)+ㅏ(a)+ㄹ(l)"], ["팔","pal","bal","mal","ㅍ(p)+ㅏ(a)+ㄹ(l)"], ["말","mal","nal","bal","ㅁ(m)+ㅏ(a)+ㄹ(l)"], ["날","nal","mal","dal","ㄴ(n)+ㅏ(a)+ㄹ(l)"], ["달","dal","tal","pal","ㄷ(d)+ㅏ(a)+ㄹ(l)"],
+                ["강","gang","bang","dang","ㄱ(g)+ㅏ(a)+ㅇ(ng)"], ["방","bang","pang","mang","ㅂ(b)+ㅏ(a)+ㅇ(ng)"], ["빵","ppang","bbang","pang","ㅃ(pp)+ㅏ(a)+ㅇ(ng)"], ["땅","ttang","ddang","ppang","ㄸ(tt)+ㅏ(a)+ㅇ(ng)"], ["상","sang","jang","chang","ㅅ(s)+ㅏ(a)+ㅇ(ng)"],
+                ["장","jang","chang","sang","ㅈ(j)+ㅏ(a)+ㅇ(ng)"], ["창","chang","jang","sang","ㅊ(ch)+ㅏ(a)+ㅇ(ng)"], ["눈","nun","mun","sun","ㄴ(n)+ㅜ(u)+ㄴ(n)"], ["문","mun","nun","dun","ㅁ(m)+ㅜ(u)+ㄴ(n)"], ["손","son","jon","chon","ㅅ(s)+ㅗ(o)+ㄴ(n)"],
+                ["돈","don","ton","pon","ㄷ(d)+ㅗ(o)+ㄴ(n)"], ["산","san","jan","chan","ㅅ(s)+ㅏ(a)+ㄴ(n)"], ["잔","jan","chan","san","ㅈ(j)+ㅏ(a)+ㄴ(n)"], ["집","jib","bib","pib","ㅈ(j)+ㅣ(i)+ㅂ(b/p)"], ["입","ip","ib","if","ㅇ+ㅣ(i)+ㅂ(p)"],
+                ["밥","bap","pap","map","ㅂ(b)+ㅏ(a)+ㅂ(p)"], ["컵","keop","geop","teop","ㅋ(k)+ㅓ(eo)+ㅂ(p)"], ["옷","ot","os","ok","ㅇ+ㅗ(o)+ㅅ(t). ㅅ sounds like T at the end"], ["맛","mat","mas","mak","ㅁ(m)+ㅏ(a)+ㅅ(t)"], ["멋","meot","meos","meok","ㅁ(m)+ㅓ(eo)+ㅅ(t)"],
+                ["꽃","kkot","kkos","kkon","ㄲ(kk)+ㅗ(o)+ㅊ(t). ㅊ sounds like T at the end"], ["빛","bit","bis","bin","ㅂ(b)+ㅣ(i)+ㅊ(t)"], ["별","byeol","pyeol","myeol","ㅂ(b)+ㅕ(yeo)+ㄹ(l)"], ["열","yeol","yeor","yeon","ㅇ+ㅕ(yeo)+ㄹ(l)"], ["달","dal","tal","pal","ㄷ(d)+ㅏ(a)+ㄹ(l)"],
+                ["물","mul","bul","pul","ㅁ(m)+ㅜ(u)+ㄹ(l)"], ["불","bul","pul","mul","ㅂ(b)+ㅜ(u)+ㄹ(l)"], ["풀","pul","bul","mul","ㅍ(p)+ㅜ(u)+ㄹ(l)"], ["술","sul","jul","chul","ㅅ(s)+ㅜ(u)+ㄹ(l)"], ["길","gil","nil","dil","ㄱ(g)+ㅣ(i)+ㄹ(l)"],
+                ["일","il","ir","in","ㅇ+ㅣ(i)+ㄹ(l)"], ["떡","tteok","ddeok","ppeok","ㄸ(tt)+ㅓ(eo)+ㄱ(k)"], ["국","guk","nuk","duk","ㄱ(g)+ㅜ(u)+ㄱ(k)"], ["북","buk","puk","muk","ㅂ(b)+ㅜ(u)+ㄱ(k)"], ["목","mok","nok","bok","ㅁ(m)+ㅗ(o)+ㄱ(k)"],
+                ["약","yak","yag","yan","ㅇ+ㅑ(ya)+ㄱ(k)"], ["책","chaek","jaek","taek","ㅊ(ch)+ㅐ(ae)+ㄱ(k)"], ["백","baek","paek","maek","ㅂ(b)+ㅐ(ae)+ㄱ(k)"], ["색","saek","jaek","chaek","ㅅ(s)+ㅐ(ae)+ㄱ(k)"], ["공","gong","nong","dong","ㄱ(g)+ㅗ(o)+ㅇ(ng)"],
+                ["동","dong","tong","pong","ㄷ(d)+ㅗ(o)+ㅇ(ng)"], ["통","tong","dong","pong","ㅌ(t)+ㅗ(o)+ㅇ(ng)"], ["용","yong","jong","chong","ㅇ+ㅛ(yo)+ㅇ(ng)"], ["종","jong","chong","song","ㅈ(j)+ㅗ(o)+ㅇ(ng)"], ["총","chong","jong","tong","ㅊ(ch)+ㅗ(o)+ㅇ(ng)"],
+                ["형","hyeong","yeong","gyeong","ㅎ(h)+ㅕ(yeo)+ㅇ(ng)"], ["명","myeong","byeong","pyeong","ㅁ(m)+ㅕ(yeo)+ㅇ(ng)"], ["병","byeong","pyeong","myeong","ㅂ(b)+ㅕ(yeo)+ㅇ(ng)"], ["밤","bam","pam","mam","ㅂ(b)+ㅏ(a)+ㅁ(m)"], ["감","gam","nam","dam","ㄱ(g)+ㅏ(a)+ㅁ(m)"],
+                ["잠","jam","cham","sam","ㅈ(j)+ㅏ(a)+ㅁ(m)"], ["봄","bom","pom","mom","ㅂ(b)+ㅗ(o)+ㅁ(m)"], ["몸","mom","nom","bom","ㅁ(m)+ㅗ(o)+ㅁ(m)"], ["곰","gom","nom","dom","ㄱ(g)+ㅗ(o)+ㅁ(m)"], ["꿈","kkum","ggum","ppum","ㄲ(kk)+ㅜ(u)+ㅁ(m)"],
+                ["숨","sum","jum","chum","ㅅ(s)+ㅜ(u)+ㅁ(m)"], ["춤","chum","jum","tum","ㅊ(ch)+ㅜ(u)+ㅁ(m)"], ["김","gim","nim","dim","ㄱ(g)+ㅣ(i)+ㅁ(m)"], ["힘","him","im","kim","ㅎ(h)+ㅣ(i)+ㅁ(m)"], ["짐","jim","chim","sim","ㅈ(j)+ㅣ(i)+ㅁ(m)"],
+                ["팀","tim","dim","pim","ㅌ(t)+ㅣ(i)+ㅁ(m)"], ["숲","sup","sub","suf","ㅅ(s)+ㅜ(u)+ㅍ(p). ㅍ sounds like P at the end"], ["잎","ip","ib","if","ㅇ+ㅣ(i)+ㅍ(p)"], ["밖","bak","bag","bat","ㅂ(b)+ㅏ(a)+ㄲ(k)"], ["엌","eok","eog","eot","ㅇ+ㅓ(eo)+ㅋ(k)"]
+            ],
+            3: [ // 3단계: 기본 단어 100개 (영어 뜻 포함)
+                ["사람","saram","sadam","sarnam","사(sa)+람(ram)","Person"], ["물","mul","bul","pul","ㅁ(m)+ㅜ(u)+ㄹ(l)","Water"], ["불","bul","mul","pul","ㅂ(b)+ㅜ(u)+ㄹ(l)","Fire"], ["하늘","haneul","hameul","haneun","하(ha)+늘(neul)","Sky"], ["땅","ttang","ddang","ppang","ㄸ(tt)+ㅏ(a)+ㅇ(ng)","Earth / Ground"],
+                ["해","hae","gae","nae","ㅎ(h)+ㅐ(ae)","Sun"], ["달","dal","tal","pal","ㄷ(d)+ㅏ(a)+ㄹ(l)","Moon"], ["별","byeol","pyeol","myeol","ㅂ(b)+ㅕ(yeo)+ㄹ(l)","Star"], ["나무","namu","nabo","nami","나(na)+무(mu)","Tree"], ["꽃","kkot","kkos","kkon","ㄲ(kk)+ㅗ(o)+ㅊ(t)","Flower"],
+                ["바다","bada","pada","mada","바(ba)+다(da)","Sea"], ["산","san","jan","chan","ㅅ(s)+ㅏ(a)+ㄴ(n)","Mountain"], ["강","gang","bang","dang","ㄱ(g)+ㅏ(a)+ㅇ(ng)","River"], ["길","gil","nil","dil","ㄱ(g)+ㅣ(i)+ㄹ(l)","Road"], ["집","jib","bib","pib","ㅈ(j)+ㅣ(i)+ㅂ(b)","House"],
+                ["학교","hakgyo","hagyo","hakyo","학(hak)+교(gyo)","School"], ["친구","chingu","jingu","singu","친(chin)+구(gu)","Friend"], ["가족","gajok","najok","dajok","가(ga)+족(jok)","Family"], ["엄마","eomma","umma","omma","엄(eom)+마(ma)","Mom"], ["아빠","appa","abba","ubba","아(a)+빠(ppa)","Dad"],
+                ["나","na","ma","ra","ㄴ(n)+ㅏ(a)","I / Me"], ["너","neo","meo","reo","ㄴ(n)+ㅓ(eo)","You"], ["밥","bap","pap","map","ㅂ(b)+ㅏ(a)+ㅂ(p)","Rice / Meal"], ["빵","ppang","bbang","pang","ㅃ(pp)+ㅏ(a)+ㅇ(ng)","Bread"], ["우유","uyu","oyu","eyu","우(u)+유(yu)","Milk"],
+                ["커피","keopi","gopi","kopi","커(keo)+피(pi)","Coffee"], ["차","cha","ja","sa","ㅊ(ch)+ㅏ(a)","Tea / Car"], ["사과","sagwa","sagua","sokwa","사(sa)+과(gwa)","Apple"], ["눈","nun","mun","sun","ㄴ(n)+ㅜ(u)+ㄴ(n)","Eye / Snow"], ["입","ip","ib","if","ㅇ+ㅣ(i)+ㅂ(p)","Mouth"],
+                ["코","ko","go","to","ㅋ(k)+ㅗ(o)","Nose"], ["귀","gwi","kwi","nwi","ㄱ(g)+ㅟ(wi)","Ear"], ["손","son","jon","chon","ㅅ(s)+ㅗ(o)+ㄴ(n)","Hand"], ["발","bal","pal","mal","ㅂ(b)+ㅏ(a)+ㄹ(l)","Foot"], ["머리","meori","neori","beori","머(meo)+리(ri)","Head / Hair"],
+                ["얼굴","eolgul","olgul","ulgul","얼(eol)+굴(gul)","Face"], ["마음","maeum","naeum","baeum","마(ma)+음(eum)","Heart / Mind"], ["사랑","sarang","jarang","charang","사(sa)+랑(rang)","Love"], ["시간","sigan","jigan","chigan","시(si)+간(gan)","Time"], ["오늘","oneul","oneun","omeul","오(o)+늘(neul)","Today"],
+                ["내일","naeil","maeil","raeil","내(nae)+일(il)","Tomorrow"], ["어제","eoje","oje","uje","어(eo)+제(je)","Yesterday"], ["아침","achim","ajim","asim","아(a)+침(chim)","Morning"], ["밤","bam","pam","mam","ㅂ(b)+ㅏ(a)+ㅁ(m)","Night"], ["봄","bom","pom","mom","ㅂ(b)+ㅗ(o)+ㅁ(m)","Spring"],
+                ["여름","yeoreum","yoreum","yureum","여(yeo)+름(reum)","Summer"], ["가을","gaeul","kaeul","naeul","가(ga)+을(eul)","Autumn"], ["겨울","gyeoul","kyeoul","nyeoul","겨(gyeo)+울(ul)","Winter"], ["바람","baram","param","maram","바(ba)+람(ram)","Wind"], ["비","bi","pi","mi","ㅂ(b)+ㅣ(i)","Rain"],
+                ["눈물","nunmul","munmul","sunmul","눈(nun)+물(mul)","Tears"], ["약속","yaksok","yagsok","yaksog","약(yak)+속(sok)","Promise"], ["음악","eumak","eumag","umak","음(eum)+악(ak)","Music"], ["노래","norae","nolae","modae","노(no)+래(rae)","Song"], ["사진","sajin","jajin","sasin","사(sa)+진(jin)","Photo"],
+                ["영화","yeonghwa","yonghwa","yeonhwa","영(yeong)+화(hwa)","Movie"], ["여행","yeohaeng","yohaeng","yeoheng","여(yeo)+행(haeng)","Travel"], ["운동","undong","ondong","eundong","운(un)+동(dong)","Exercise"], ["공부","gongbu","kongbu","gongpu","공(gong)+부(bu)","Study"], ["일","il","ir","in","ㅇ+ㅣ(i)+ㄹ(l)","Work / Job"],
+                ["돈","don","ton","pon","ㄷ(d)+ㅗ(o)+ㄴ(n)","Money"], ["책","chaek","jaek","taek","ㅊ(ch)+ㅐ(ae)+ㄱ(k)","Book"], ["펜","pen","ben","fen","ㅍ(p)+ㅔ(e)+ㄴ(n)","Pen"], ["가방","gabang","kabang","gapang","가(ga)+방(bang)","Bag"], ["옷","ot","os","ok","ㅇ+ㅗ(o)+ㅅ(t)","Clothes"],
+                ["신발","sinbal","jinbal","sinpal","신(sin)+발(bal)","Shoes"], ["모자","moja","noja","boja","모(mo)+자(ja)","Hat"], ["안경","angyeong","ankyeong","angyong","안(an)+경(gyeong)","Glasses"], ["시계","sigye","jikye","sigae","시(si)+계(gye)","Watch / Clock"], ["휴대폰","hyudaepon","hyudaebon","yudaepon","휴(hyu)+대(dae)+폰(pon)","Cell phone"],
+                ["컴퓨터","keompyuteo","kompyuteo","geumpyuteo","컴(keom)+퓨(pyu)+터(teo)","Computer"], ["텔레비전","tellebijeon","telebijeon","tellepijeon","텔(tel)+레(re)+비(bi)+전(jeon)","Television"], ["의자","uija","ija","euija","의(ui)+자(ja)","Chair"], ["책상","chaeksang","jaeksang","chaekjang","책(chaek)+상(sang)","Desk"], ["방","bang","pang","mang","ㅂ(b)+ㅏ(a)+ㅇ(ng)","Room"],
+                ["문","mun","nun","dun","ㅁ(m)+ㅜ(u)+ㄴ(n)","Door"], ["창문","changmun","jangmun","changnun","창(chang)+문(mun)","Window"], ["침대","chimdae","jimdae","chimtae","침(chim)+대(dae)","Bed"], ["거울","geoul","koul","geoun","거(geo)+울(ul)","Mirror"], ["화장실","hwajangsil","wajangsil","hwajangjin","화(hwa)+장(jang)+실(sil)","Bathroom"],
+                ["병원","byeongwon","pyeongwon","byeongon","병(byeong)+원(won)","Hospital"], ["약국","yakguk","yagguk","yakgug","약(yak)+국(guk)","Pharmacy"], ["식당","sikdang","sigdang","siktang","식(sik)+당(dang)","Restaurant"], ["은행","eunhaeng","unhaeng","eunheng","은(eun)+행(haeng)","Bank"], ["우체국","ucheguk","ujeguk","uchegug","우(u)+체(che)+국(guk)","Post office"],
+                ["시장","sijang","jijang","sichang","시(si)+장(jang)","Market"], ["가게","gage","kage","gake","가(ga)+게(ge)","Store"], ["회사","hoesa","hwesa","oesa","회(hoe)+사(sa)","Company"], ["역","yeok","yok","yeog","ㅇ+ㅕ(yeo)+ㄱ(k)","Station"], ["기차","gicha","kicha","gija","기(gi)+차(cha)","Train"],
+                ["비행기","bihaenggi","pihaenggi","bihengki","비(bi)+행(haeng)+기(gi)","Airplane"], ["자전거","jajeongeo","chajeongeo","jajeongo","자(ja)+전(jeon)+거(geo)","Bicycle"], ["버스","beoseu","peoseu","boseu","버(beo)+스(seu)","Bus"], ["택시","taeksi","daeksi","teksi","택(taek)+시(si)","Taxi"], ["지하철","jihacheol","chihacheol","jiacheol","지(ji)+하(ha)+철(cheol)","Subway"],
+                ["이름","ireum","ileum","ileun","이(i)+름(reum)","Name"], ["나이","nai","mai","nae","나(na)+이(i)","Age"], ["생일","saengil","sengil","saengir","생(saeng)+일(il)","Birthday"], ["고향","gohyang","kohyang","goyang","고(go)+향(hyang)","Hometown"], ["한국","hanguk","hangug","hankuk","한(han)+국(guk)","Korea"]
+            ]
+        };
+
+        // 데이터를 가볍게 쓰기 위해 배열로 압축한 것을 객체로 파싱하는 함수
+        const quizData = { 1: [], 2: [], 3: [] };
+        for (let stage in rawData) {
+            quizData[stage] = rawData[stage].map(item => ({
+                word: item[0], answer: item[1],
+                options: [item[1], item[2], item[3]], 
+                exp: item[4], meaning: item[5] || ""
+            }));
+        }
+
+        let currentStage = 1;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuestions = [];
+
+        const menuScreen = document.getElementById('menu-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackEl = document.getElementById('feedback');
+        const expEl = document.getElementById('explanation');
+        const nextBtn = document.getElementById('next-btn');
+
+        function showMenu() {
+            menuScreen.classList.remove('hidden'); quizScreen.classList.add('hidden'); resultScreen.classList.add('hidden');
+        }
+
+        function startStage(stage) {
+            currentStage = stage; currentQuestionIndex = 0; score = 0;
+            
+            // 핵심: 100개의 데이터 중 배열을 무작위로 섞은 뒤(Shuffle), 설정한 갯수(10개)만 잘라냄
+            const shuffledPool = [...quizData[stage]].sort(() => Math.random() - 0.5);
+            activeQuestions = shuffledPool.slice(0, QUESTIONS_PER_ROUND);
+            
+            document.getElementById('stage-title').innerText = `Stage ${stage}`;
+            menuScreen.classList.add('hidden'); quizScreen.classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            feedbackEl.innerText = ""; expEl.classList.add('hidden');
+            nextBtn.classList.add('hidden'); optionsContainer.innerHTML = "";
+
+            const q = activeQuestions[currentQuestionIndex];
+            document.getElementById('progress-text').innerText = `Question ${currentQuestionIndex + 1} / ${activeQuestions.length}`;
+            document.getElementById('question-word').innerText = q.word;
+
+            const meaningEl = document.getElementById('word-meaning');
+            if (q.meaning) { meaningEl.innerText = `Meaning: ${q.meaning}`; meaningEl.classList.remove('hidden'); } 
+            else { meaningEl.classList.add('hidden'); }
+
+            // 보기 섞기
+            const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn'; btn.innerText = opt;
+                btn.onclick = () => checkAnswer(btn, opt, q);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(clickedBtn, selectedWord, q) {
+            const allBtns = optionsContainer.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => {
+                btn.disabled = true;
+                if(btn.innerText === q.answer) btn.classList.add('correct');
+            });
+
+            if (selectedWord === q.answer) {
+                feedbackEl.innerText = "✨ Correct!"; feedbackEl.className = "feedback-area feedback-correct";
+                score++;
+            } else {
+                clickedBtn.classList.add('wrong');
+                feedbackEl.innerText = `❌ Wrong! (Answer: ${q.answer})`; feedbackEl.className = "feedback-area feedback-wrong";
+                // 틀렸을 때 설명 박스 띄우기
+                expEl.innerText = `💡 Tip: ${q.exp}`;
+                expEl.classList.remove('hidden');
+            }
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuestions.length) loadQuestion();
+            else showResults();
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden'); resultScreen.classList.remove('hidden');
+            document.getElementById('final-score').innerText = `${score} / ${activeQuestions.length}`;
+        }
+    </script>
+</body>
+</html>
