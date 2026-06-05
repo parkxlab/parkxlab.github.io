@@ -87,6 +87,8 @@
             <div class="meaning-display hidden" id="word-meaning">Meaning</div>
             
             <div class="options-grid" id="options-container"></div>
+
+            <button id="show-hint-btn" onclick="showHint()" style="margin-bottom: 15px; background: #e2e8f0; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #475569; width: 100%;">💡 Show Hint (힌트 보기)</button>
             
             <div class="feedback-area" id="feedback"></div>
             <div class="explanation-box hidden" id="explanation">💡 Tip: ㄱ(g) + ㅏ(a)</div>
@@ -566,6 +568,9 @@
             nextBtn.classList.add('hidden'); optionsContainer.innerHTML = "";
 
             const q = activeQuestions[currentQuestionIndex];
+            expEl.innerText = `💡 Tip: ${q.exp}`;
+            document.getElementById('show-hint-btn').classList.remove('hidden');
+
             document.getElementById('progress-text').innerText = `Question ${currentQuestionIndex + 1} / ${activeQuestions.length}`;
             document.getElementById('question-word').innerText = q.word;
 
@@ -597,6 +602,8 @@
                 if(btn.innerText === q.answer) btn.classList.add('correct');
             });
 
+            document.getElementById('show-hint-btn').classList.add('hidden');
+
             if (selectedWord === q.answer) {
                 feedbackEl.innerText = "✨ Correct!"; feedbackEl.className = "feedback-area feedback-correct";
                 score++;
@@ -621,6 +628,11 @@
         function showResults() {
             quizScreen.classList.add('hidden'); resultScreen.classList.remove('hidden');
             document.getElementById('final-score').innerText = `${score} / ${activeQuestions.length}`;
+        }
+
+        function showHint() {
+            document.getElementById('explanation').classList.remove('hidden');
+            document.getElementById('show-hint-btn').classList.add('hidden');
         }
     </script>
 </body>
