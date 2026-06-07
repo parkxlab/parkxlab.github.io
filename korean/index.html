@@ -1125,6 +1125,36 @@
             document.getElementById('explanation').classList.remove('hidden');
             document.getElementById('show-hint-btn').classList.add('hidden');
         }
+
+        // 스마트 뒤로 가기 함수
+        function goBack() {
+            // 1. 현재 결과 화면(Result)인 경우 -> 메인 메뉴로
+            if (!resultScreen.classList.contains('hidden')) {
+                showMenu();
+            }
+            // 2. 현재 퀴즈 화면(Quiz)인 경우 -> 진행 상황이 날아가므로 확인 모달 띄우기
+            else if (!quizScreen.classList.contains('hidden')) {
+                showConfirmModal(); 
+            }
+            // 3. 현재 플래시카드 화면(Flashcard)인 경우
+            else if (!flashcardScreen.classList.contains('hidden')) {
+                flashcardScreen.classList.add('hidden');
+                // 4단계(카테고리)에서 들어왔다면 카테고리 선택 화면으로, 그 외엔 메인 메뉴로
+                if (currentStage === 4) {
+                    categoryScreen.classList.remove('hidden');
+                } else {
+                    showMenu();
+                }
+            }
+            // 4. 현재 카테고리 선택 화면(Category)인 경우 -> 메인 메뉴로
+            else if (!categoryScreen.classList.contains('hidden')) {
+                showMenu();
+            }
+            // 5. 이미 메인 메뉴(Menu)인 경우 -> 원래 지정해두신 외부 링크로 완전 나가기
+            else {
+                window.location.href = "https://parklab.com/korean";
+            }
+        }
     </script>
 </body>
 </html>
