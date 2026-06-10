@@ -3,951 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Korean Pronunciation & Vocabulary Practice</title>
+    <title>Korean Learning Hub – ParkXLab</title>
     <style>
         :root {
-            --primary: #6366f1; --primary-hover: #4f46e5;
-            --bg-color: #f8fafc; --card-bg: #ffffff;
-            --text-main: #1e293b; --text-muted: #64748b;
-            --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { 
-            background-color: var(--bg-color); color: var(--text-main); 
-            display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; padding: 20px; 
-            padding-top: 80px; padding-bottom: 80px; /* 상하단 네비게이션 공간 확보 */
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
         }
-        
-        /* 상단 네비게이션 (뒤로가기 & 로고) */
-        .top-nav {
-            position: fixed; top: 20px; left: 0; width: 100%;
-            padding: 0 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100;
-            pointer-events: none; /* 빈 공간 클릭 방해 방지 */
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
         }
-        .top-nav > * { pointer-events: auto; }
-        
-        .back-link {
-            background: rgba(255, 255, 255, 0.95); padding: 8px 16px; border-radius: 12px;
-            text-decoration: none; color: var(--text-main); font-weight: 700; font-size: 0.95rem;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
+
+        .logo-wrap {
+            margin-bottom: 16px;
+        }
+
+        .logo-wrap img {
+            height: 56px;
+            width: auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        /* Nav cards */
+        .nav-wrap {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .nav-card {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 18px 22px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            text-decoration: none;
+            color: var(--text-main);
             transition: all 0.2s ease;
-        }
-        .back-link:hover { background: #f1f5f9; transform: translateY(-2px); }
-
-        .logo-link img {
-            height: 42px; width: auto; border-radius: 8px;
-            transition: transform 0.2s;
-            background-color: rgba(255,255,255,0.9);
-            padding: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .logo-link img:hover { transform: scale(1.05); }
-
-        /* 하단 링크 버튼 */
-        .bottom-links {
-            position: fixed; bottom: 20px; left: 0; width: 100%;
-            display: flex; justify-content: center; gap: 12px; z-index: 100;
-        }
-        .bottom-link {
-            background: #ffffff; color: var(--primary); padding: 8px 18px;
-            border-radius: 20px; font-size: 0.85rem; text-decoration: none; font-weight: 700;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e0e7ff;
-            transition: all 0.2s ease;
-        }
-        .bottom-link:hover { background: var(--primary); color: white; transform: translateY(-2px); }
-
-        /* 메인 컨테이너 */
-        .container {
-            background: var(--card-bg); max-width: 480px; width: 100%;
-            border-radius: 20px; padding: 40px 30px; text-align: center;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
 
-        h1 { font-size: 1.8rem; margin-bottom: 10px; }
-        p.subtitle { color: var(--text-muted); margin-bottom: 30px; }
-        .hidden { display: none !important; }
-
-        .menu-btn {
-            display: block; width: 100%; padding: 16px; margin-bottom: 15px;
-            background-color: #f1f5f9; border: 2px solid transparent; border-radius: 12px;
-            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
-        }
-        .menu-btn:hover { background-color: #e2e8f0; border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
-        .category-btn { padding: 12px; font-size: 1rem; margin-bottom: 10px; } /* 카테고리 버튼용 크기 조절 */
-
-        /* 카테고리 목록 스크롤바 디자인 */
-        #category-list::-webkit-scrollbar { width: 6px; }
-        #category-list::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-        #category-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-
-        .stage-title { font-size: 1.2rem; color: var(--primary); font-weight: bold; margin-bottom: 20px; }
-        .word-display { font-size: 4rem; font-weight: 700; margin: 20px 0 10px 0; }
-        .meaning-display {
-            font-size: 1.2rem; color: var(--text-muted); margin-bottom: 25px;
-            background-color: #f1f5f9; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 500;
+        .nav-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99,102,241,0.12);
         }
 
-        .options-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
-        .option-btn {
-            background-color: #ffffff; border: 2px solid #e2e8f0; border-radius: 12px;
-            padding: 15px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease;
-        }
-        .option-btn:hover:not(:disabled) { border-color: var(--primary); background-color: #eff6ff; }
-        .option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
-        .option-btn.correct { background-color: #dcfce7; border-color: var(--success); color: #166534; font-weight: bold; }
-        .option-btn.wrong { background-color: #fee2e2; border-color: var(--danger); color: #991b1b; }
-
-        .feedback-area { min-height: 30px; margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; }
-        .feedback-correct { color: var(--success); }
-        .feedback-wrong { color: var(--danger); }
-        
-        .explanation-box {
-            background-color: #fffbeb; border-left: 4px solid var(--warning);
-            padding: 12px; text-align: left; margin-bottom: 20px; border-radius: 4px 8px 8px 4px;
-            font-size: 0.95rem; color: #92400e; font-weight: 500;
+        .nav-card.coming-soon {
+            opacity: 0.55;
+            cursor: default;
+            pointer-events: none;
         }
 
-        .action-btn {
-            background-color: var(--primary); color: white; border: none; border-radius: 10px;
-            padding: 14px 24px; font-size: 1.1rem; font-weight: 600; cursor: pointer; width: 100%;
+        .icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
         }
-        .action-btn:hover { background-color: var(--primary-hover); }
-        .score-display { font-size: 3.5rem; font-weight: bold; color: var(--primary); margin: 20px 0; }
-        
-        /* Flashcard Specific Styles */
-        .fc-korean { font-size: 6rem; font-weight: 800; color: var(--text-main); line-height: 1.2; margin-top: 10px; }
-        .fc-romanized { font-size: 2rem; color: var(--primary); font-weight: bold; margin-bottom: 20px; }
-        
-        /* Custom Modal Styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000;
+
+        .icon-purple { background: #ede9fe; }
+        .icon-red    { background: #fee2e2; }
+        .icon-teal   { background: #d1fae5; }
+        .icon-amber  { background: #fef3c7; }
+
+        .nav-text { flex: 1; }
+
+        .nav-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 2px;
         }
-        .modal-box {
-            background: var(--card-bg); padding: 30px; border-radius: 16px;
-            text-align: center; max-width: 90%; width: 350px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+        .nav-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
         }
-        .modal-box h3 { margin-bottom: 10px; color: var(--text-main); font-size: 1.5rem; }
-        .modal-box p { color: var(--text-muted); margin-bottom: 25px; }
-        .modal-btns { display: flex; gap: 10px; }
-        .modal-btns .action-btn { flex: 1; padding: 12px; font-size: 1rem; }
-        .cancel-btn { background-color: #94a3b8; }
-        .cancel-btn:hover { background-color: #64748b; }
-        .confirm-btn { background-color: var(--danger); }
-        .confirm-btn:hover { background-color: #b91c1c; }
+
+        .badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 3px 8px;
+            border-radius: 20px;
+            border: 1px solid #fde68a;
+            white-space: nowrap;
+        }
+
+        .arrow {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 36px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <!-- 상단 네비게이션: 뒤로가기 & 로고 -->
-    <div class="top-nav">
-        <a href="https://parkxlab.com/korean" target="_top" id="top-back-btn" class="back-link">🔙 Back</a>
-        <a href="https://parkxlab.com" class="logo-link" target="_top" rel="noopener noreferrer">
-            <img src="https://raw.githubusercontent.com/parkxlab/parkxlab.github.io/main/images/parkxlab_logo.png" alt="ParkXLab Logo">
+    <div class="header">
+        <div class="logo-wrap">
+            <a href="https://www.parkxlab.com" target="_blank" rel="noopener noreferrer">
+                <img src="https://raw.githubusercontent.com/parkxlab/parkxlab.github.io/main/images/parkxlab_logo.png" alt="ParkXLab Logo">
+            </a>
+        </div>
+        <h1>Korean Learning Hub 🇰🇷</h1>
+        <p>Pronunciation, vocabulary, and more!</p>
+    </div>
+
+    <nav class="nav-wrap" aria-label="Korean learning links">
+
+        <a class="nav-card" href="https://www.parkxlab.com/koreanquiz/" target="_blank" rel="noopener noreferrer">
+            <div class="icon-wrap icon-purple">🎮</div>
+            <div class="nav-text">
+                <div class="nav-title">퀴즈 (Quiz)</div>
+                <div class="nav-desc">Pronunciation & vocabulary practice</div>
+            </div>
+            <span class="arrow">›</span>
         </a>
-    </div>
 
-    <!-- 앱 메인 컨테이너 -->
-    <div class="container" id="app">
-        <!-- 1. 메인 메뉴 화면 -->
-        <div id="menu-screen">
-            <h1>Korean Practice</h1>
-            <p class="subtitle">Practice pronunciation and vocabulary!</p>
-            <button class="menu-btn" onclick="startStage(0)" style="background-color: #fef08a; border-color: #fde047;">Stage 0: Learn & Play (Beginner)</button>
-            <button class="menu-btn" onclick="startStage(1)">Stage 1: Basic Syllables</button>
-            <button class="menu-btn" onclick="startStage(2)">Stage 2: Complex Syllables</button>
-            <button class="menu-btn" onclick="startStage(3)">Stage 3: Basic Words (Pronunciation)</button>
-            <button class="menu-btn" onclick="startStage(4)" style="background-color: #e0e7ff; border-color: #c7d2fe;">Stage 4: Vocabulary Master 🌟</button>
-        </div>
-
-        <!-- 2. 카테고리 선택 화면 (4단계 전용) -->
-        <div id="category-screen" class="hidden">
-            <h1>Select Category</h1>
-            <p class="subtitle">Choose a vocabulary topic</p>
-            <!-- 카테고리 버튼이 들어갈 공간 -->
-            <div id="category-list" style="display: flex; flex-direction: column; max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
-            
-            <button class="action-btn" onclick="showMenu()" style="margin-top: 20px; background-color: #64748b;">Back to Main Menu</button>
-        </div>
-
-        <!-- NEW: Flashcard Screen for Study Mode -->
-        <div id="flashcard-screen" class="hidden">
-            <div class="stage-title">Study Mode 📚</div>
-            <p class="subtitle" id="fc-progress-text">Card 1 / 10</p>
-            
-            <div class="fc-korean" id="fc-korean">ㄱ</div>
-            <div class="fc-romanized" id="fc-romanized">g / k</div>
-            
-            <div class="explanation-box" id="fc-hint" style="text-align: center; margin-top: 30px;">💡 Looks like a Goose neck! 🦆</div>
-            
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="action-btn" id="fc-prev-btn" onclick="prevFlashcard()" style="background-color: #94a3b8; flex: 1;">⬅️ Prev</button>
-                <button class="action-btn" id="fc-next-btn" onclick="nextFlashcard()" style="flex: 1;">Next ➡️</button>
+        <a class="nav-card" href="https://youtube.com/playlist?list=PLaBzg96yMjUcbqS6QflB4kUFcKQ0oWBJN&si=E_eBCLOioQ_E2ePK" target="_blank" rel="noopener noreferrer">
+            <div class="icon-wrap icon-red">📺</div>
+            <div class="nav-text">
+                <div class="nav-title">유튜브 (YouTube)</div>
+                <div class="nav-desc">Video lessons & tutorials</div>
             </div>
-            <button class="action-btn" id="fc-start-quiz-btn" onclick="startQuizFromFlashcard()" style="margin-top: 15px; background-color: var(--success);">Start Quiz! 🎮</button>
-        </div>
+            <span class="arrow">›</span>
+        </a>
 
-        <!-- 3. 퀴즈 화면 -->
-        <div id="quiz-screen" class="hidden">
-            <div class="stage-title" id="stage-title">Stage 1</div>
-            <p class="subtitle" id="progress-text">Question 1 / 10</p>
-            
-            <div class="word-display" id="question-word">가</div>
-            <div class="meaning-display hidden" id="word-meaning">Meaning</div>
-            
-            <div class="options-grid" id="options-container"></div>
-
-            <button id="show-hint-btn" onclick="showHint()" style="margin-bottom: 15px; background: #e2e8f0; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #475569; width: 100%;">💡 Show Hint (힌트 보기)</button>
-            
-            <button id="back-to-fc-btn" onclick="showConfirmModal('flashcard')" style="margin-bottom: 15px; background: #fef08a; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #854d0e; width: 100%;">🔙 Back to Study Cards</button>
-            
-            <div class="feedback-area" id="feedback"></div>
-            <div class="explanation-box hidden" id="explanation">💡 Tip: ㄱ(g) + ㅏ(a)</div>
-            
-            <button class="action-btn hidden" id="next-btn" onclick="nextQuestion()">Next Question</button>
-        </div>
-
-        <!-- 4. 결과 화면 -->
-        <div id="result-screen" class="hidden">
-            <h1>Stage Completed!</h1>
-            <div class="score-display" id="final-score">0 / 10</div>
-            <p id="result-message" style="margin-bottom: 30px; font-weight: 600;"></p>
-            <button class="action-btn" onclick="showMenu()">Back to Main Menu</button>
-        </div>
-    </div>
-
-    <!-- 하단 부가 링크 -->
-    <div class="bottom-links">
-        <!-- 나중에 href 속성의 # 부분을 원하는 링크 주소로 교체하세요 -->
-        <a href="#" class="bottom-link" target="_blank">📺 Video Tutorial</a>
-        <a href="#" class="bottom-link" target="_blank">📁 Resources</a>
-    </div>
-
-    <!-- Custom Confirmation Modal -->
-    <div id="confirm-modal" class="hidden modal-overlay">
-        <div class="modal-box">
-            <h3>Are you sure?</h3>
-            <p>Your current quiz progress will be lost.</p>
-            <div class="modal-btns">
-                <button class="action-btn cancel-btn" onclick="closeConfirmModal()">Cancel</button>
-                <button class="action-btn confirm-btn" onclick="confirmAction()">Yes, Go Back</button>
+        <a class="nav-card coming-soon" href="#" aria-disabled="true">
+            <div class="icon-wrap icon-teal">📁</div>
+            <div class="nav-text">
+                <div class="nav-title">자료실 (Resources)</div>
+                <div class="nav-desc">Worksheets, PDFs & study materials</div>
             </div>
-        </div>
+            <span class="badge">Coming Soon</span>
+        </a>
+
+        <a class="nav-card" href="mailto:contact@parkxlab.com">
+            <div class="icon-wrap icon-amber">✉️</div>
+            <div class="nav-text">
+                <div class="nav-title">문의 (Contact)</div>
+                <div class="nav-desc">Send us an email</div>
+            </div>
+            <span class="arrow">›</span>
+        </a>
+
+    </nav>
+
+    <div class="footer">
+        <a href="https://www.parkxlab.com" target="_blank" rel="noopener noreferrer">parkxlab.com</a>
     </div>
 
-    <script>
-        // 한 번에 풀 문제 수 설정
-        const QUESTIONS_PER_ROUND = 10;
-
-        // 원본 데이터
-        const rawData = {
-            0: [
-                ["g / k", "ㄱ", "ㄴ", "ㅅ", "Looks like a Goose neck! 🦆"],
-                ["n", "ㄴ", "ㄱ", "ㄷ", "Looks like a Knee! 🦵"],
-                ["d / t", "ㄷ", "ㄴ", "ㅁ", "Looks like a Door! 🚪"],
-                ["r / l", "ㄹ", "ㄷ", "ㅂ", "Looks like a winding Road! 🛣️"],
-                ["m", "ㅁ", "ㅇ", "ㅂ", "Looks like a square Mailbox! 📭"],
-                ["b / p", "ㅂ", "ㅁ", "ㅍ", "Looks like a Bucket! 🪣"],
-                ["s", "ㅅ", "ㅈ", "ㅇ", "Looks like a Slide! 🛝"],
-                ["ng / silent", "ㅇ", "ㅁ", "ㅎ", "Looks like a round Orange! 🍊"],
-                ["j", "ㅈ", "ㅅ", "ㅊ", "Looks like a person Jogging! 🏃"],
-                ["ch", "ㅊ", "ㅈ", "ㅎ", "Looks like a Church roof! ⛪"],
-                ["k", "ㅋ", "ㄱ", "ㅌ", "Looks like a Key! 🔑"],
-                ["t", "ㅌ", "ㄷ", "ㅍ", "Looks like a Two-pronged fork! 🍴"],
-                ["p", "ㅍ", "ㅂ", "ㅁ", "Looks like a Piano keyboard! 🎹"],
-                ["h", "ㅎ", "ㅇ", "ㅊ", "Looks like a man wearing a Hat! 🎩"],
-                ["kk", "ㄲ", "ㅃ", "ㅆ", "Two Geese side by side! 🦆🦆"],
-                ["tt", "ㄸ", "ㄲ", "ㅉ", "Two Doors next to each other! 🚪🚪"],
-                ["pp", "ㅃ", "ㄸ", "ㅆ", "Two Buckets together! 🪣🪣"],
-                ["ss", "ㅆ", "ㅉ", "ㄲ", "Two Slides! 🛝🛝"],
-                ["jj", "ㅉ", "ㅆ", "ㅃ", "Two people Jogging! 🏃🏃"],
-                ["a", "ㅏ", "ㅓ", "ㅗ", "Pointing to the right (Ah!) 👉"],
-                ["ya", "ㅑ", "ㅕ", "ㅛ", "Two lines pointing right (Ya!) ✌️"],
-                ["eo", "ㅓ", "ㅏ", "ㅜ", "Pointing to the left (Oh no!) 👈"],
-                ["yeo", "ㅕ", "ㅑ", "ㅠ", "Two lines pointing left (Yeo!) ✌️"],
-                ["o", "ㅗ", "ㅜ", "ㅣ", "Pointing Over the line ☝️"],
-                ["yo", "ㅛ", "ㅠ", "ㅑ", "Two lines pointing up (Yo-yo!) 🪀"],
-                ["u", "ㅜ", "ㅗ", "ㅡ", "Pointing Under the line 👇"],
-                ["yu", "ㅠ", "ㅛ", "ㅕ", "Two lines pointing down (You!) 🫵"],
-                ["eu", "ㅡ", "ㅣ", "ㅜ", "Flat like the Earth! 🌍"],
-                ["i", "ㅣ", "ㅡ", "ㅏ", "Standing tall like an Ice cream! 🍦"],
-                ["ae", "ㅐ", "ㅔ", "ㅒ", "Looks like an H (Apple) 🍎"],
-                ["yae", "ㅒ", "ㅖ", "ㅐ", "Two lines inside (Yak) 🐂"],
-                ["e", "ㅔ", "ㅐ", "ㅖ", "Looks like a ladder (Egg) 🥚"],
-                ["ye", "ㅖ", "ㅒ", "ㅔ", "Two lines on the ladder (Yes) 👍"],
-                ["wa", "ㅘ", "ㅝ", "ㅙ", "ㅗ + ㅏ = Wa! (Water) 💧"],
-                ["wae", "ㅙ", "ㅞ", "ㅚ", "ㅗ + ㅐ = Wae! (Wait!) ✋"],
-                ["oe", "ㅚ", "ㅟ", "ㅙ", "ㅗ + ㅣ = Oe! (Sounds like 'we') 👥"],
-                ["wo", "ㅝ", "ㅘ", "ㅞ", "ㅜ + ㅓ = Wo! (Wonder) 😲"],
-                ["we", "ㅞ", "ㅙ", "ㅟ", "ㅜ + ㅔ = We! (Web) 🕸️"],
-                ["wi", "ㅟ", "ㅚ", "ㅢ", "ㅜ + ㅣ = Wi! (Wind) 🌬️"],
-                ["ui", "ㅢ", "ㅟ", "ㅚ", "ㅡ + ㅣ = Ui! 🎢"]
-            ],
-            1: [ // 1단계: 기본 자모음 (100개)
-                ["가","ga","na","da","ㄱ(g) + ㅏ(a)"], ["나","na","ma","ra","ㄴ(n) + ㅏ(a)"], ["다","da","ta","pa","ㄷ(d) + ㅏ(a)"], ["라","ra","ma","sa","ㄹ(r/l) + ㅏ(a)"], ["마","ma","pa","ba","ㅁ(m) + ㅏ(a)"],
-                ["바","ba","pa","ma","ㅂ(b) + ㅏ(a)"], ["사","sa","ja","cha","ㅅ(s) + ㅏ(a)"], ["아","a","ha","ya","ㅇ(silent) + ㅏ(a)"], ["자","ja","cha","sa","ㅈ(j) + ㅏ(a)"], ["차","cha","ja","ta","ㅊ(ch) + ㅏ(a)"],
-                ["카","ka","ga","ta","ㅋ(k) + ㅏ(a)"], ["타","ta","da","pa","ㅌ(t) + ㅏ(a)"], ["파","pa","ba","ha","ㅍ(p) + ㅏ(a)"], ["하","ha","a","ka","ㅎ(h) + ㅏ(a)"], ["거","geo","neo","deo","ㄱ(g) + ㅓ(eo)"],
-                ["너","neo","meo","reo","ㄴ(n) + ㅓ(eo)"], ["더","deo","teo","peo","ㄷ(d) + ㅓ(eo)"], ["러","reo","meo","seo","ㄹ(r/l) + ㅓ(eo)"], ["머","meo","peo","beo","ㅁ(m) + ㅓ(eo)"], ["버","beo","peo","meo","ㅂ(b) + ㅓ(eo)"],
-                ["서","seo","jeo","cheo","ㅅ(s) + ㅓ(eo)"], ["어","eo","heo","yeo","ㅇ(silent) + ㅓ(eo)"], ["저","jeo","cheo","seo","ㅈ(j) + ㅓ(eo)"], ["처","cheo","jeo","teo","ㅊ(ch) + ㅓ(eo)"], ["커","keo","geo","teo","ㅋ(k) + ㅓ(eo)"],
-                ["터","teo","deo","peo","ㅌ(t) + ㅓ(eo)"], ["퍼","peo","beo","heo","ㅍ(p) + ㅓ(eo)"], ["허","heo","eo","keo","ㅎ(h) + ㅓ(eo)"], ["고","go","no","do","ㄱ(g) + ㅗ(o)"], ["노","no","mo","ro","ㄴ(n) + ㅗ(o)"],
-                ["도","do","to","po","ㄷ(d) + ㅗ(o)"], ["로","ro","mo","so","ㄹ(r/l) + ㅗ(o)"], ["모","mo","po","bo","ㅁ(m) + ㅗ(o)"], ["보","bo","po","mo","ㅂ(b) + ㅗ(o)"], ["소","so","jo","cho","ㅅ(s) + ㅗ(o)"],
-                ["오","o","ho","yo","ㅇ(silent) + ㅗ(o)"], ["조","jo","cho","so","ㅈ(j) + ㅗ(o)"], ["초","cho","jo","to","ㅊ(ch) + ㅗ(o)"], ["코","ko","go","to","ㅋ(k) + ㅗ(o)"], ["토","to","do","po","ㅌ(t) + ㅗ(o)"],
-                ["포","po","bo","ho","ㅍ(p) + ㅗ(o)"], ["호","ho","o","ko","ㅎ(h) + ㅗ(o)"], ["구","gu","nu","du","ㄱ(g) + ㅜ(u)"], ["누","nu","mu","ru","ㄴ(n) + ㅜ(u)"], ["두","du","tu","pu","ㄷ(d) + ㅜ(u)"],
-                ["루","ru","mu","su","ㄹ(r/l) + ㅜ(u)"], ["무","mu","pu","bu","ㅁ(m) + ㅜ(u)"], ["부","bu","pu","mu","ㅂ(b) + ㅜ(u)"], ["수","su","ju","chu","ㅅ(s) + ㅜ(u)"], ["우","u","hu","yu","ㅇ(silent) + ㅜ(u)"],
-                ["주","ju","chu","su","ㅈ(j) + ㅜ(u)"], ["추","chu","ju","tu","ㅊ(ch) + ㅜ(u)"], ["쿠","ku","gu","tu","ㅋ(k) + ㅜ(u)"], ["투","tu","du","pu","ㅌ(t) + ㅜ(u)"], ["푸","pu","bu","hu","ㅍ(p) + ㅜ(u)"],
-                ["후","hu","u","ku","ㅎ(h) + ㅜ(u)"], ["그","geu","neu","deu","ㄱ(g) + ㅡ(eu)"], ["느","neu","meu","reu","ㄴ(n) + ㅡ(eu)"], ["드","deu","teu","peu","ㄷ(d) + ㅡ(eu)"], ["르","reu","meu","seu","ㄹ(r/l) + ㅡ(eu)"],
-                ["므","meu","peu","beu","ㅁ(m) + ㅡ(eu)"], ["브","beu","peu","meu","ㅂ(b) + ㅡ(eu)"], ["스","seu","jeu","cheu","ㅅ(s) + ㅡ(eu)"], ["으","eu","heu","yeu","ㅇ(silent) + ㅡ(eu)"], ["즈","jeu","cheu","seu","ㅈ(j) + ㅡ(eu)"],
-                ["츠","cheu","jeu","teu","ㅊ(ch) + ㅡ(eu)"], ["크","keu","geu","teu","ㅋ(k) + ㅡ(eu)"], ["트","teu","deu","peu","ㅌ(t) + ㅡ(eu)"], ["프","peu","beu","heu","ㅍ(p) + ㅡ(eu)"], ["흐","heu","eu","keu","ㅎ(h) + ㅡ(eu)"],
-                ["기","gi","ni","di","ㄱ(g) + ㅣ(i)"], ["니","ni","mi","ri","ㄴ(n) + ㅣ(i)"], ["디","di","ti","pi","ㄷ(d) + ㅣ(i)"], ["리","ri","mi","si","ㄹ(r/l) + ㅣ(i)"], ["미","mi","pi","bi","ㅁ(m) + ㅣ(i)"],
-                ["비","bi","pi","mi","ㅂ(b) + ㅣ(i)"], ["시","si","ji","chi","ㅅ(s) + ㅣ(i)"], ["이","i","hi","yi","ㅇ(silent) + ㅣ(i)"], ["지","ji","chi","si","ㅈ(j) + ㅣ(i)"], ["치","chi","ji","ti","ㅊ(ch) + ㅣ(i)"],
-                ["키","ki","gi","ti","ㅋ(k) + ㅣ(i)"], ["티","ti","di","pi","ㅌ(t) + ㅣ(i)"], ["피","pi","bi","hi","ㅍ(p) + ㅣ(i)"], ["히","hi","i","ki","ㅎ(h) + ㅣ(i)"], ["갸","gya","nya","dya","ㄱ(g) + ㅑ(ya)"],
-                ["냐","nya","mya","rya","ㄴ(n) + ㅑ(ya)"], ["뎌","dyeo","tyeo","pyeo","ㄷ(d) + ㅕ(yeo)"], ["려","ryeo","myeo","syeo","ㄹ(r/l) + ㅕ(yeo)"], ["묘","myo","pyo","byo","ㅁ(m) + ㅛ(yo)"], ["뵤","byo","pyo","myo","ㅂ(b) + ㅛ(yo)"],
-                ["슈","syu","jyu","chyu","ㅅ(s) + ㅠ(yu)"], ["유","yu","hyu","wu","ㅇ(silent) + ㅠ(yu)"], ["쥬","jyu","chyu","syu","ㅈ(j) + ㅠ(yu)"], ["쵸","chyo","jyo","tyo","ㅊ(ch) + ㅛ(yo)"], ["큐","kyu","gyu","tyu","ㅋ(k) + ㅠ(yu)"],
-                ["튜","tyu","dyu","pyu","ㅌ(t) + ㅠ(yu)"], ["표","pyo","byo","hyo","ㅍ(p) + ㅛ(yo)"], ["휴","hyu","yu","kyu","ㅎ(h) + ㅠ(yu)"], ["샤","sya","jya","chya","ㅅ(s) + ㅑ(ya)"], ["야","ya","hya","wa","ㅇ(silent) + ㅑ(ya)"]
-            ],
-            2: [ // 2단계: 복합모음 + 받침
-                ["에","e","ae","we","ㅇ(silent) + ㅔ(e)"], ["애","ae","e","wae","ㅇ(silent) + ㅐ(ae)"], ["게","ge","gae","gwe","ㄱ(g) + ㅔ(e)"], ["개","gae","ge","gwae","ㄱ(g) + ㅐ(ae)"], ["네","ne","nae","nwe","ㄴ(n) + ㅔ(e)"],
-                ["내","nae","ne","nwae","ㄴ(n) + ㅐ(ae)"], ["데","de","dae","dwe","ㄷ(d) + ㅔ(e)"], ["대","dae","de","dwae","ㄷ(d) + ㅐ(ae)"], ["메","me","mae","mwe","ㅁ(m) + ㅔ(e)"], ["매","mae","me","mwae","ㅁ(m) + ㅐ(ae)"],
-                ["세","se","sae","swe","ㅅ(s) + ㅔ(e)"], ["새","sae","se","swae","ㅅ(s) + ㅐ(ae)"], ["제","je","jae","jwe","ㅈ(j) + ㅔ(e)"], ["재","jae","je","jwae","ㅈ(j) + ㅐ(ae)"], ["페","pe","pae","pwe","ㅍ(p) + ㅔ(e)"],
-                ["왜","wae","we","oe","ㅇ + ㅙ(wae). Sounds like 'wae'"], ["웨","we","wae","oe","ㅇ + ㅞ(we). Sounds like 'we'"], ["외","oe","wae","we","ㅇ + ㅚ(oe). Sounds like 'we' or 'oe'"], ["와","wa","wo","wae","ㅇ + ㅘ(wa)"], ["워","wo","wa","weo","ㅇ + ㅝ(wo/weo)"],
-                ["돼","dwae","dwe","doe","ㄷ(d) + ㅙ(wae)"], ["되","doe","dwae","dwe","ㄷ(d) + ㅚ(oe)"], ["최","choe","chwae","chwe","ㅊ(ch) + ㅚ(oe)"], ["과","gwa","gwo","go","ㄱ(g) + ㅘ(wa)"], ["궈","gwo","gwa","go","ㄱ(g) + ㅝ(wo)"],
-                ["의","ui","i","eu","ㅇ + ㅢ(ui). Complex sound eu+i"], ["희","hui","hi","heu","ㅎ(h) + ㅢ(ui)"], ["쉬","swi","swe","soe","ㅅ(s) + ㅟ(wi)"], ["귀","gwi","gwe","goe","ㄱ(g) + ㅟ(wi)"], ["쥐","jwi","jwe","joe","ㅈ(j) + ㅟ(wi)"],
-                ["발","bal","pal","mal","ㅂ(b)+ㅏ(a)+ㄹ(l)"], ["팔","pal","bal","mal","ㅍ(p)+ㅏ(a)+ㄹ(l)"], ["말","mal","nal","bal","ㅁ(m)+ㅏ(a)+ㄹ(l)"], ["날","nal","mal","dal","ㄴ(n)+ㅏ(a)+ㄹ(l)"], ["달","dal","tal","pal","ㄷ(d)+ㅏ(a)+ㄹ(l)"],
-                ["강","gang","bang","dang","ㄱ(g)+ㅏ(a)+ㅇ(ng)"], ["방","bang","pang","mang","ㅂ(b)+ㅏ(a)+ㅇ(ng)"], ["빵","ppang","bbang","pang","ㅃ(pp)+ㅏ(a)+ㅇ(ng)"], ["땅","ttang","ddang","ppang","ㄸ(tt)+ㅏ(a)+ㅇ(ng)"], ["상","sang","jang","chang","ㅅ(s)+ㅏ(a)+ㅇ(ng)"],
-                ["장","jang","chang","sang","ㅈ(j)+ㅏ(a)+ㅇ(ng)"], ["창","chang","jang","sang","ㅊ(ch)+ㅏ(a)+ㅇ(ng)"], ["눈","nun","mun","sun","ㄴ(n)+ㅜ(u)+ㄴ(n)"], ["문","mun","nun","dun","ㅁ(m)+ㅜ(u)+ㄴ(n)"], ["손","son","jon","chon","ㅅ(s)+ㅗ(o)+ㄴ(n)"],
-                ["돈","don","ton","pon","ㄷ(d)+ㅗ(o)+ㄴ(n)"], ["산","san","jan","chan","ㅅ(s)+ㅏ(a)+ㄴ(n)"], ["잔","jan","chan","san","ㅈ(j)+ㅏ(a)+ㄴ(n)"], ["집","jib","bib","pib","ㅈ(j)+ㅣ(i)+ㅂ(b/p)"], ["입","ip","ib","if","ㅇ+ㅣ(i)+ㅂ(p)"],
-                ["밥","bap","pap","map","ㅂ(b)+ㅏ(a)+ㅂ(p)"], ["컵","keop","geop","teop","ㅋ(k)+ㅓ(eo)+ㅂ(p)"], ["옷","ot","os","ok","ㅇ+ㅗ(o)+ㅅ(t). ㅅ sounds like T at the end"], ["맛","mat","mas","mak","ㅁ(m)+ㅏ(a)+ㅅ(t)"], ["멋","meot","meos","meok","ㅁ(m)+ㅓ(eo)+ㅅ(t)"],
-                ["꽃","kkot","kkos","kkon","ㄲ(kk)+ㅗ(o)+ㅊ(t). ㅊ sounds like T at the end"], ["빛","bit","bis","bin","ㅂ(b)+ㅣ(i)+ㅊ(t)"], ["별","byeol","pyeol","myeol","ㅂ(b)+ㅕ(yeo)+ㄹ(l)"], ["열","yeol","yeor","yeon","ㅇ+ㅕ(yeo)+ㄹ(l)"], ["물","mul","bul","pul","ㅁ(m)+ㅜ(u)+ㄹ(l)"], 
-                ["불","bul","pul","mul","ㅂ(b)+ㅜ(u)+ㄹ(l)"], ["풀","pul","bul","mul","ㅍ(p)+ㅜ(u)+ㄹ(l)"], ["술","sul","jul","chul","ㅅ(s)+ㅜ(u)+ㄹ(l)"], ["길","gil","nil","dil","ㄱ(g)+ㅣ(i)+ㄹ(l)"],
-                ["일","il","ir","in","ㅇ+ㅣ(i)+ㄹ(l)"], ["떡","tteok","ddeok","ppeok","ㄸ(tt)+ㅓ(eo)+ㄱ(k)"], ["국","guk","nuk","duk","ㄱ(g)+ㅜ(u)+ㄱ(k)"], ["북","buk","puk","muk","ㅂ(b)+ㅜ(u)+ㄱ(k)"], ["목","mok","nok","bok","ㅁ(m)+ㅗ(o)+ㄱ(k)"],
-                ["약","yak","yag","yan","ㅇ+ㅑ(ya)+ㄱ(k)"], ["책","chaek","jaek","taek","ㅊ(ch)+ㅐ(ae)+ㄱ(k)"], ["백","baek","paek","maek","ㅂ(b)+ㅐ(ae)+ㄱ(k)"], ["색","saek","jaek","chaek","ㅅ(s)+ㅐ(ae)+ㄱ(k)"], ["공","gong","nong","dong","ㄱ(g)+ㅗ(o)+ㅇ(ng)"],
-                ["동","dong","tong","pong","ㄷ(d)+ㅗ(o)+ㅇ(ng)"], ["통","tong","dong","pong","ㅌ(t)+ㅗ(o)+ㅇ(ng)"], ["용","yong","jong","chong","ㅇ+ㅛ(yo)+ㅇ(ng)"], ["종","jong","chong","song","ㅈ(j)+ㅗ(o)+ㅇ(ng)"], ["총","chong","jong","tong","ㅊ(ch)+ㅗ(o)+ㅇ(ng)"],
-                ["형","hyeong","yeong","gyeong","ㅎ(h)+ㅕ(yeo)+ㅇ(ng)"], ["명","myeong","byeong","pyeong","ㅁ(m)+ㅕ(yeo)+ㅇ(ng)"], ["병","byeong","pyeong","myeong","ㅂ(b)+ㅕ(yeo)+ㅇ(ng)"], ["밤","bam","pam","mam","ㅂ(b)+ㅏ(a)+ㅁ(m)"], ["감","gam","nam","dam","ㄱ(g)+ㅏ(a)+ㅁ(m)"],
-                ["잠","jam","cham","sam","ㅈ(j)+ㅏ(a)+ㅁ(m)"], ["봄","bom","pom","mom","ㅂ(b)+ㅗ(o)+ㅁ(m)"], ["몸","mom","nom","bom","ㅁ(m)+ㅗ(o)+ㅁ(m)"], ["곰","gom","nom","dom","ㄱ(g)+ㅗ(o)+ㅁ(m)"], ["꿈","kkum","ggum","ppum","ㄲ(kk)+ㅜ(u)+ㅁ(m)"],
-                ["숨","sum","jum","chum","ㅅ(s)+ㅜ(u)+ㅁ(m)"], ["춤","chum","jum","tum","ㅊ(ch)+ㅜ(u)+ㅁ(m)"], ["김","gim","nim","dim","ㄱ(g)+ㅣ(i)+ㅁ(m)"], ["힘","him","im","kim","ㅎ(h)+ㅣ(i)+ㅁ(m)"], ["짐","jim","chim","sim","ㅈ(j)+ㅣ(i)+ㅁ(m)"],
-                ["팀","tim","dim","pim","ㅌ(t)+ㅣ(i)+ㅁ(m)"], ["숲","sup","sub","suf","ㅅ(s)+ㅜ(u)+ㅍ(p). ㅍ sounds like P at the end"], ["잎","ip","ib","if","ㅇ+ㅣ(i)+ㅍ(p)"], ["밖","bak","bag","bat","ㅂ(b)+ㅏ(a)+ㄲ(k)"], ["엌","eok","eog","eot","ㅇ+ㅓ(eo)+ㅋ(k)"]
-            ],
-            3: [ // 3단계: 기본 단어 발음
-                ["사람","saram","sadam","sarnam","사(sa)+람(ram)","Person"], ["물","mul","bul","pul","ㅁ(m)+ㅜ(u)+ㄹ(l)","Water"], ["불","bul","mul","pul","ㅂ(b)+ㅜ(u)+ㄹ(l)","Fire"], ["하늘","haneul","hameul","haneun","하(ha)+늘(neul)","Sky"], ["땅","ttang","ddang","ppang","ㄸ(tt)+ㅏ(a)+ㅇ(ng)","Earth / Ground"],
-                ["해","hae","gae","nae","ㅎ(h)+ㅐ(ae)","Sun"], ["달","dal","tal","pal","ㄷ(d)+ㅏ(a)+ㄹ(l)","Moon"], ["별","byeol","pyeol","myeol","ㅂ(b)+ㅕ(yeo)+ㄹ(l)","Star"], ["나무","namu","nabo","nami","나(na)+무(mu)","Tree"], ["꽃","kkot","kkos","kkon","ㄲ(kk)+ㅗ(o)+ㅊ(t)","Flower"],
-                ["바다","bada","pada","mada","바(ba)+다(da)","Sea"], ["산","san","jan","chan","ㅅ(s)+ㅏ(a)+ㄴ(n)","Mountain"], ["강","gang","bang","dang","ㄱ(g)+ㅏ(a)+ㅇ(ng)","River"], ["길","gil","nil","dil","ㄱ(g)+ㅣ(i)+ㄹ(l)","Road"], ["집","jib","bib","pib","ㅈ(j)+ㅣ(i)+ㅂ(b)","House"],
-                ["학교","hakgyo","hagyo","hakyo","학(hak)+교(gyo)","School"], ["친구","chingu","jingu","singu","친(chin)+구(gu)","Friend"], ["가족","gajok","najok","dajok","가(ga)+족(jok)","Family"], ["엄마","eomma","umma","omma","엄(eom)+마(ma)","Mom"], ["아빠","appa","abba","ubba","아(a)+빠(ppa)","Dad"],
-                ["나","na","ma","ra","ㄴ(n)+ㅏ(a)","I / Me"], ["너","neo","meo","reo","ㄴ(n)+ㅓ(eo)","You"], ["밥","bap","pap","map","ㅂ(b)+ㅏ(a)+ㅂ(p)","Rice / Meal"], ["빵","ppang","bbang","pang","ㅃ(pp)+ㅏ(a)+ㅇ(ng)","Bread"], ["우유","uyu","oyu","eyu","우(u)+유(yu)","Milk"],
-                ["커피","keopi","gopi","kopi","커(keo)+피(pi)","Coffee"], ["차","cha","ja","sa","ㅊ(ch)+ㅏ(a)","Tea / Car"], ["사과","sagwa","sagua","sokwa","사(sa)+과(gwa)","Apple"], ["눈","nun","mun","sun","ㄴ(n)+ㅜ(u)+ㄴ(n)","Eye / Snow"], ["입","ip","ib","if","ㅇ+ㅣ(i)+ㅂ(p)","Mouth"],
-                ["코","ko","go","to","ㅋ(k)+ㅗ(o)","Nose"], ["귀","gwi","kwi","nwi","ㄱ(g)+ㅟ(wi)","Ear"], ["손","son","jon","chon","ㅅ(s)+ㅗ(o)+ㄴ(n)","Hand"], ["발","bal","pal","mal","ㅂ(b)+ㅏ(a)+ㄹ(l)","Foot"], ["머리","meori","neori","beori","머(meo)+리(ri)","Head / Hair"],
-                ["얼굴","eolgul","olgul","ulgul","얼(eol)+굴(gul)","Face"], ["마음","maeum","naeum","baeum","마(ma)+음(eum)","Heart / Mind"], ["사랑","sarang","jarang","charang","사(sa)+랑(rang)","Love"], ["시간","sigan","jigan","chigan","시(si)+간(gan)","Time"], ["오늘","oneul","oneun","omeul","오(o)+늘(neul)","Today"],
-                ["내일","naeil","maeil","raeil","내(nae)+일(il)","Tomorrow"], ["어제","eoje","oje","uje","어(eo)+제(je)","Yesterday"], ["아침","achim","ajim","asim","아(a)+침(chim)","Morning"], ["밤","bam","pam","mam","ㅂ(b)+ㅏ(a)+ㅁ(m)","Night"], ["봄","bom","pom","mom","ㅂ(b)+ㅗ(o)+ㅁ(m)","Spring"],
-                ["여름","yeoreum","yoreum","yureum","여(yeo)+름(reum)","Summer"], ["가을","gaeul","kaeul","naeul","가(ga)+을(eul)","Autumn"], ["겨울","gyeoul","kyeoul","nyeoul","겨(gyeo)+울(ul)","Winter"], ["바람","baram","param","maram","바(ba)+람(ram)","Wind"], ["비","bi","pi","mi","ㅂ(b)+ㅣ(i)","Rain"],
-                ["눈물","nunmul","munmul","sunmul","눈(nun)+물(mul)","Tears"], ["약속","yaksok","yagsok","yaksog","약(yak)+속(sok)","Promise"], ["음악","eumak","eumag","umak","음(eum)+악(ak)","Music"], ["노래","norae","nolae","modae","노(no)+래(rae)","Song"], ["사진","sajin","jajin","sasin","사(sa)+진(jin)","Photo"],
-                ["영화","yeonghwa","yonghwa","yeonhwa","영(yeong)+화(hwa)","Movie"], ["여행","yeohaeng","yohaeng","yeoheng","여(yeo)+행(haeng)","Travel"], ["운동","undong","ondong","eundong","운(un)+동(dong)","Exercise"], ["공부","gongbu","kongbu","gongpu","공(gong)+부(bu)","Study"], ["일","il","ir","in","ㅇ+ㅣ(i)+ㄹ(l)","Work / Job"],
-                ["돈","don","ton","pon","ㄷ(d)+ㅗ(o)+ㄴ(n)","Money"], ["책","chaek","jaek","taek","ㅊ(ch)+ㅐ(ae)+ㄱ(k)","Book"], ["펜","pen","ben","fen","ㅍ(p)+ㅔ(e)+ㄴ(n)","Pen"], ["가방","gabang","kabang","gapang","가(ga)+방(bang)","Bag"], ["옷","ot","os","ok","ㅇ+ㅗ(o)+ㅅ(t)","Clothes"],
-                ["신발","sinbal","jinbal","sinpal","신(sin)+발(bal)","Shoes"], ["모자","moja","noja","boja","모(mo)+자(ja)","Hat"], ["안경","angyeong","ankyeong","angyong","안(an)+경(gyeong)","Glasses"], ["시계","sigye","jikye","sigae","시(si)+계(gye)","Watch / Clock"], ["휴대폰","hyudaepon","hyudaebon","yudaepon","휴(hyu)+대(dae)+폰(pon)","Cell phone"],
-                ["컴퓨터","keompyuteo","kompyuteo","geumpyuteo","컴(keom)+퓨(pyu)+터(teo)","Computer"], ["텔레비전","tellebijeon","telebijeon","tellepijeon","텔(tel)+레(re)+비(bi)+전(jeon)","Television"], ["의자","uija","ija","euija","의(ui)+자(ja)","Chair"], ["책상","chaeksang","jaeksang","chaekjang","책(chaek)+상(sang)","Desk"], ["방","bang","pang","mang","ㅂ(b)+ㅏ(a)+ㅇ(ng)","Room"],
-                ["문","mun","nun","dun","ㅁ(m)+ㅜ(u)+ㄴ(n)","Door"], ["창문","changmun","jangmun","changnun","창(chang)+문(mun)","Window"], ["침대","chimdae","jimdae","chimtae","침(chim)+대(dae)","Bed"], ["거울","geoul","koul","geoun","거(geo)+울(ul)","Mirror"], ["화장실","hwajangsil","wajangsil","hwajangjin","화(hwa)+장(jang)+실(sil)","Bathroom"],
-                ["병원","byeongwon","pyeongwon","byeongon","병(byeong)+원(won)","Hospital"], ["약국","yakguk","yagguk","yakgug","약(yak)+국(guk)","Pharmacy"], ["식당","sikdang","sigdang","siktang","식(sik)+당(dang)","Restaurant"], ["은행","eunhaeng","unhaeng","eunheng","은(eun)+행(haeng)","Bank"], ["우체국","ucheguk","ujeguk","uchegug","우(u)+체(che)+국(guk)","Post office"],
-                ["시장","sijang","jijang","sichang","시(si)+장(jang)","Market"], ["가게","gage","kage","gake","가(ga)+게(ge)","Store"], ["회사","hoesa","hwesa","oesa","회(hoe)+사(sa)","Company"], ["역","yeok","yok","yeog","ㅇ+ㅕ(yeo)+ㄱ(k)","Station"], ["기차","gicha","kicha","gija","기(gi)+차(cha)","Train"],
-                ["비행기","bihaenggi","pihaenggi","bihengki","비(bi)+행(haeng)+기(gi)","Airplane"], ["자전거","jajeongeo","chajeongeo","jajeongo","자(ja)+전(jeon)+거(geo)","Bicycle"], ["버스","beoseu","peoseu","boseu","버(beo)+스(seu)","Bus"], ["택시","taeksi","daeksi","teksi","택(taek)+시(si)","Taxi"], ["지하철","jihacheol","chihacheol","jiacheol","지(ji)+하(ha)+철(cheol)","Subway"],
-                ["이름","ireum","ileum","ileun","이(i)+름(reum)","Name"], ["나이","nai","mai","nae","나(na)+이(i)","Age"], ["생일","saengil","sengil","saengir","생(saeng)+일(il)","Birthday"], ["고향","gohyang","kohyang","goyang","고(go)+향(hyang)","Hometown"], ["한국","hanguk","hangug","hankuk","한(han)+국(guk)","Korea"]
-            ],
-            4: { // 4단계: 카테고리별 분리 (의미 맞추기)
-                "Animals (동물)": [
-                    ["개", "Dog", "Cat", "Pig", "Animal that barks (멍멍)"],
-                    ["고양이", "Cat", "Dog", "Mouse", "Animal that meows (야옹)"],
-                    ["새", "Bird", "Fish", "Cow", "Animal that flies"],
-                    ["물고기", "Fish", "Bird", "Dog", "Animal that swims in water"],
-                    ["소", "Cow", "Horse", "Pig", "Produces milk (음매)"],
-                    ["돼지", "Pig", "Cow", "Sheep", "Animal known for pork (꿀꿀)"],
-                    ["말", "Horse", "Cow", "Dog", "Animal you can ride (히힝)"],
-                    ["사자", "Lion", "Tiger", "Bear", "King of the jungle"],
-                    ["호랑이", "Tiger", "Lion", "Elephant", "Fierce striped animal"],
-                    ["곰", "Bear", "Tiger", "Lion", "Large strong animal that likes honey"],
-                    ["원숭이", "Monkey", "Gorilla", "Bear", "Animal that loves bananas"],
-                    ["쥐", "Mouse", "Cat", "Dog", "Small animal that likes cheese"],
-                    ["토끼", "Rabbit", "Mouse", "Cat", "Animal with long ears"]
-                ],
-                "Food & Drinks (음식 및 음료)": [
-                    ["사과", "Apple", "Banana", "Grape", "Red or green fruit"],
-                    ["바나나", "Banana", "Apple", "Orange", "Yellow long fruit"],
-                    ["포도", "Grape", "Strawberry", "Apple", "Small purple or green fruit"],
-                    ["딸기", "Strawberry", "Apple", "Grape", "Red fruit with tiny seeds"],
-                    ["수박", "Watermelon", "Melon", "Peach", "Large green fruit, red inside"],
-                    ["오렌지", "Orange", "Apple", "Banana", "Citrus fruit"],
-                    ["복숭아", "Peach", "Plum", "Apple", "Soft, fuzzy pinkish fruit"],
-                    ["배", "Pear", "Apple", "Peach", "Sweet, crunchy fruit"],
-                    ["감자", "Potato", "Sweet Potato", "Onion", "Root vegetable for fries"],
-                    ["고구마", "Sweet Potato", "Potato", "Carrot", "Sweet root vegetable"],
-                    ["양파", "Onion", "Garlic", "Potato", "Vegetable that makes you cry"],
-                    ["마늘", "Garlic", "Onion", "Pepper", "Strong-smelling bulb"],
-                    ["당근", "Carrot", "Radish", "Onion", "Orange vegetable rabbits like"],
-                    ["밥", "Rice / Meal", "Bread", "Noodle", "Staple food in Korea"],
-                    ["빵", "Bread", "Rice", "Cake", "Baked food made of flour"],
-                    ["면", "Noodle", "Rice", "Bread", "Long, thin food"],
-                    ["고기", "Meat", "Vegetable", "Fish", "Food from animals"],
-                    ["채소", "Vegetable", "Meat", "Fruit", "Healthy green food"],
-                    ["과일", "Fruit", "Vegetable", "Meat", "Sweet plant food"],
-                    ["소금", "Salt", "Sugar", "Pepper", "Salty seasoning"],
-                    ["설탕", "Sugar", "Salt", "Honey", "Sweet seasoning"],
-                    ["물", "Water", "Juice", "Milk", "Clear liquid we drink"],
-                    ["우유", "Milk", "Water", "Tea", "White liquid from cows"],
-                    ["차", "Tea", "Coffee", "Water", "Drink made from leaves"],
-                    ["커피", "Coffee", "Tea", "Juice", "Dark caffeinated drink"],
-                    ["얼음", "Ice", "Water", "Fire", "Frozen water"],
-                    ["닭고기", "Chicken (meat)", "Beef", "Pork", "Poultry meat"],
-                    ["소고기", "Beef", "Pork", "Chicken", "Meat from a cow"],
-                    ["돼지고기", "Pork", "Beef", "Chicken", "Meat from a pig"],
-                    ["음료수", "Beverage / Drink", "Food", "Snack", "Liquid you drink"],
-                    ["볶음밥", "Fried rice", "Noodle", "Soup", "Rice cooked in a pan with oil"],
-                    ["비빔밥", "Bibimbap", "Sushi", "Noodle", "Korean mixed rice with vegetables"],
-                    ["삼계탕", "Ginseng chicken soup", "Kimchi stew", "Fried chicken", "Healthy hot soup with chicken"],
-                    ["떡만두국", "Rice cake and dumpling soup", "Fried rice", "Noodle soup", "Warm soup with rice cakes and dumplings"],
-                    ["김치", "Kimchi", "Salad", "Soup", "Spicy fermented cabbage"],
-                    ["샌드위치", "Sandwich", "Pizza", "Hamburger", "Food between two slices of bread"],
-                    ["감자튀김", "French fries", "Salad", "Steak", "Fried potato sticks"],
-                    ["과자", "Snack", "Meal", "Drink", "Chips or cookies"],
-                    ["아이스크림", "Ice cream", "Cake", "Bread", "Cold sweet dessert"],
-                    ["케이크", "Cake", "Ice cream", "Cookie", "Sweet baked dessert for birthdays"],
-                    ["계란 / 달걀", "Egg", "Milk", "Cheese", "Laid by birds"],
-                    ["치즈", "Cheese", "Butter", "Milk", "Dairy product"]
-                ],
-                "Nature & Time (자연 및 시간)": [
-                    ["하늘", "Sky", "Earth", "Sea", "Blue space above us"],
-                    ["땅", "Earth / Ground", "Sky", "Sea", "Surface we walk on"],
-                    ["바다", "Sea / Ocean", "River", "Lake", "Large body of salt water"],
-                    ["강", "River", "Sea", "Lake", "Flowing fresh water"],
-                    ["산", "Mountain", "Hill", "Sea", "High, rocky land"],
-                    ["나무", "Tree", "Flower", "Grass", "Tall plant with wood"],
-                    ["꽃", "Flower", "Tree", "Leaf", "Colorful part of a plant"],
-                    ["풀", "Grass", "Tree", "Flower", "Green plant on the ground"],
-                    ["해", "Sun", "Moon", "Star", "Bright star in the day"],
-                    ["달", "Moon", "Sun", "Star", "Bright object in the night sky"],
-                    ["별", "Star", "Moon", "Sun", "Twinkling light in the night sky"],
-                    ["눈", "Snow / Eye", "Rain", "Wind", "White flakes from the sky"],
-                    ["비", "Rain", "Snow", "Wind", "Water falling from the sky"],
-                    ["바람", "Wind", "Rain", "Snow", "Moving air"],
-                    ["구름", "Cloud", "Sun", "Moon", "White fluffy thing in the sky"],
-                    ["불", "Fire", "Water", "Ice", "Hot and bright"],
-                    ["봄", "Spring", "Summer", "Winter", "Season of flowers"],
-                    ["여름", "Summer", "Winter", "Spring", "Hot season"],
-                    ["가을", "Autumn / Fall", "Spring", "Summer", "Season of falling leaves"],
-                    ["겨울", "Winter", "Summer", "Autumn", "Cold season with snow"],
-                    ["아침", "Morning", "Evening", "Night", "Start of the day"],
-                    ["점심", "Afternoon / Lunch", "Morning", "Night", "Middle of the day"],
-                    ["저녁", "Evening / Dinner", "Morning", "Night", "End of the day"],
-                    ["밤", "Night", "Morning", "Afternoon", "When it is dark"],
-                    ["오늘", "Today", "Tomorrow", "Yesterday", "This present day"],
-                    ["내일", "Tomorrow", "Today", "Yesterday", "The day after today"],
-                    ["어제", "Yesterday", "Today", "Tomorrow", "The day before today"],
-                    ["지금", "Now", "Later", "Before", "At this exact moment"],
-                    ["숲", "Forest", "Mountain", "Park", "Place with many trees"],
-                    ["우주", "Universe / Space", "Earth", "Sky", "Where stars and planets are"],
-                    ["지구", "Earth", "Moon", "Sun", "The planet we live on"],
-                    ["월요일", "Monday", "Tuesday", "Sunday", "First day of the work week"],
-                    ["화요일", "Tuesday", "Wednesday", "Monday", "Second day of the week"],
-                    ["수요일", "Wednesday", "Thursday", "Tuesday", "Third day of the week"],
-                    ["목요일", "Thursday", "Friday", "Wednesday", "Fourth day of the week"],
-                    ["금요일", "Friday", "Saturday", "Thursday", "Fifth day of the week"],
-                    ["토요일", "Saturday", "Sunday", "Friday", "Weekend day (Sat)"],
-                    ["일요일", "Sunday", "Monday", "Saturday", "Weekend day (Sun)"]
-                ],
-                "People (사람 및 관계)": [
-                    ["나", "I / Me (Informal)", "You", "We", "Refers to oneself (Informal)"],
-                    ["저", "I / Me (Formal)", "You", "We", "Refers to oneself (Formal)"],
-                    ["너", "You", "I", "He", "Refers to the listener (Informal)"],
-                    ["우리", "We / Us", "They", "You", "Refers to a group including oneself"],
-                    ["사람", "Person", "Animal", "Thing", "A human being"],
-                    ["친구", "Friend", "Enemy", "Teacher", "Someone you like and know well"],
-                    ["가족", "Family", "Friend", "Colleague", "Parents, siblings, etc."],
-                    ["엄마", "Mom", "Dad", "Sister", "Mother (Informal)"],
-                    ["아빠", "Dad", "Mom", "Brother", "Father (Informal)"],
-                    ["형", "Older Brother (for males)", "Older Sister", "Younger Brother", "Used by men to call older brothers"],
-                    ["오빠", "Older Brother (for females)", "Older Sister", "Younger Brother", "Used by women to call older brothers"],
-                    ["누나", "Older Sister (for males)", "Older Brother", "Younger Sister", "Used by men to call older sisters"],
-                    ["언니", "Older Sister (for females)", "Older Brother", "Younger Sister", "Used by women to call older sisters"],
-                    ["동생", "Younger Sibling", "Older Sibling", "Friend", "Younger brother or sister"],
-                    ["남자", "Man", "Woman", "Child", "Male adult"],
-                    ["여자", "Woman", "Man", "Child", "Female adult"],
-                    ["아이", "Child", "Adult", "Baby", "A young person"],
-                    ["아기", "Baby", "Child", "Adult", "A very young child"]
-                ],
-                "Places & Travel (장소 및 여행)": [
-                    ["집", "House / Home", "School", "Company", "Place where you live"],
-                    ["학교", "School", "Hospital", "Company", "Place to study"],
-                    ["회사", "Company", "School", "Hospital", "Place to work"],
-                    ["병원", "Hospital", "Pharmacy", "School", "Place for sick people"],
-                    ["약국", "Pharmacy", "Hospital", "Store", "Place to buy medicine"],
-                    ["가게", "Store / Shop", "Bank", "Hospital", "Place to buy things"],
-                    ["식당", "Restaurant", "Cafe", "Store", "Place to eat meals"],
-                    ["은행", "Bank", "Post Office", "Store", "Place to save money"],
-                    ["우체국", "Post Office", "Bank", "Hospital", "Place to send mail"],
-                    ["시장", "Market", "Store", "Bank", "Traditional place to buy food"],
-                    ["역", "Station", "Airport", "Stop", "Subway or train stop"],
-                    ["기차", "Train", "Bus", "Car", "Long vehicle on tracks"],
-                    ["버스", "Bus", "Train", "Taxi", "Large public vehicle"],
-                    ["택시", "Taxi", "Bus", "Subway", "Car you pay to ride"],
-                    ["비행기", "Airplane", "Train", "Ship", "Vehicle that flies"],
-                    ["배", "Ship / Boat", "Airplane", "Train", "Vehicle on water"],
-                    ["자전거", "Bicycle", "Car", "Bus", "Two-wheeled vehicle"],
-                    ["자동차", "Car", "Bus", "Bicycle", "Four-wheeled personal vehicle"],
-                    ["길", "Road / Street", "Mountain", "River", "Path for walking or driving"],
-                    ["여행", "Travel / Trip", "Work", "Study", "Going to a new place"],
-                    ["공항", "Airport", "Train station", "Bus stop", "Place for airplanes"],
-                    ["여권", "Passport", "Ticket", "Map", "ID for international travel"],
-                    ["지도", "Map", "Book", "Ticket", "Shows locations and roads"],
-                    ["호텔", "Hotel", "Hospital", "School", "Place to sleep when traveling"],
-                    ["엔진", "Engine", "Wheel", "Door", "Machine that makes a car move"],
-                    ["도서관", "Library", "School", "Bank", "Place with many books"],
-                    ["공원", "Park", "Market", "Hospital", "Place with trees for walking"]
-                ],
-                "Items & Tech (물건 및 기술)": [
-                    ["문", "Door", "Window", "Wall", "Entrance to a room"],
-                    ["창문", "Window", "Door", "Wall", "Glass opening in a wall"],
-                    ["책상", "Desk", "Chair", "Bed", "Table for studying/working"],
-                    ["의자", "Chair", "Desk", "Bed", "Furniture to sit on"],
-                    ["침대", "Bed", "Desk", "Chair", "Furniture to sleep on"],
-                    ["책", "Book", "Notebook", "Pen", "Something you read"],
-                    ["공책", "Notebook", "Book", "Pen", "Something you write in"],
-                    ["펜", "Pen", "Pencil", "Eraser", "Tool for writing with ink"],
-                    ["연필", "Pencil", "Pen", "Eraser", "Tool for writing with lead"],
-                    ["가방", "Bag", "Shoes", "Hat", "Item to carry things in"],
-                    ["옷", "Clothes", "Shoes", "Hat", "Items you wear"],
-                    ["신발", "Shoes", "Socks", "Pants", "Worn on your feet"],
-                    ["모자", "Hat", "Shoes", "Glasses", "Worn on your head"],
-                    ["안경", "Glasses", "Hat", "Shoes", "Worn to see better"],
-                    ["시계", "Clock / Watch", "Glasses", "Hat", "Tells the time"],
-                    ["휴대폰", "Cell Phone", "Computer", "Television", "Mobile device for calling"],
-                    ["컴퓨터", "Computer", "Cell Phone", "Television", "Electronic machine for work"],
-                    ["텔레비전", "Television", "Computer", "Radio", "Device to watch shows"],
-                    ["사진", "Photo / Picture", "Movie", "Music", "Image taken with a camera"],
-                    ["영화", "Movie", "Music", "Photo", "Moving pictures in a theater"],
-                    ["음악", "Music", "Movie", "Photo", "Sounds you listen to"],
-                    ["노래", "Song", "Dance", "Music", "Music with singing"],
-                    ["인공지능", "Artificial Intelligence", "Robot", "Computer", "AI"],
-                    ["데이터", "Data", "Screen", "Keyboard", "Information for computers"],
-                    ["화면", "Screen", "Keyboard", "Mouse", "Display part of a device"],
-                    ["지갑", "Wallet", "Bag", "Shoes", "Where you put your money"],
-                    ["우산", "Umbrella", "Hat", "Coat", "Used when it rains"],
-                    ["거울", "Mirror", "Window", "Door", "Glass that reflects your face"],
-                    ["열쇠", "Key", "Lock", "Door", "Used to open doors"],
-                    ["돈", "Money", "Card", "Wallet", "Cash or coins"],
-                    ["카드", "Credit/Debit Card", "Cash", "Coin", "Plastic payment method"]
-                ],
-                "Body Parts (신체 부위)": [
-                    ["눈", "Eye", "Nose", "Mouth", "Body part for seeing"],
-                    ["코", "Nose", "Eye", "Mouth", "Body part for smelling"],
-                    ["입", "Mouth", "Ear", "Nose", "Body part for eating/speaking"],
-                    ["귀", "Ear", "Eye", "Mouth", "Body part for hearing"],
-                    ["얼굴", "Face", "Head", "Hand", "Front part of the head"],
-                    ["머리", "Head / Hair", "Face", "Neck", "Top part of the body"],
-                    ["손", "Hand", "Foot", "Arm", "Body part at the end of the arm"],
-                    ["발", "Foot", "Hand", "Leg", "Body part at the end of the leg"],
-                    ["목", "Neck", "Shoulder", "Back", "Connects head and body"],
-                    ["어깨", "Shoulder", "Back", "Arm", "Joint connecting arm and body"],
-                    ["팔", "Arm", "Leg", "Hand", "Upper limb"],
-                    ["손가락", "Finger", "Toe", "Hand", "Five on each hand"],
-                    ["다리", "Leg", "Arm", "Foot", "Lower limb"],
-                    ["발가락", "Toe", "Finger", "Foot", "Five on each foot"],
-                    ["심장", "Heart", "Stomach", "Brain", "Pumps blood"],
-                    ["배", "Stomach", "Back", "Chest", "Where food goes"]
-                ],
-                "Verbs (동사)": [
-                    ["가다", "To go", "To come", "To eat", "Move away from here"],
-                    ["오다", "To come", "To go", "To sleep", "Move toward here"],
-                    ["먹다", "To eat", "To drink", "To sleep", "Put food in mouth"],
-                    ["마시다", "To drink", "To eat", "To see", "Swallow liquid"],
-                    ["자다", "To sleep", "To wake up", "To rest", "Rest in bed"],
-                    ["보다", "To see / look", "To hear", "To speak", "Use your eyes"],
-                    ["듣다", "To hear / listen", "To see", "To speak", "Use your ears"],
-                    ["말하다", "To speak / talk", "To hear", "To see", "Use your voice"],
-                    ["읽다", "To read", "To write", "To speak", "Look at text and understand"],
-                    ["쓰다", "To write", "To read", "To draw", "Make marks with a pen"],
-                    ["일어나다", "To wake up / get up", "To sleep", "To sit", "First thing you do in the morning"],
-                    ["씻다", "To wash", "To dry", "To eat", "Cleaning yourself"],
-                    ["입다", "To wear (clothes)", "To take off", "To buy", "Putting on clothes"],
-                    ["벗다", "To take off (clothes)", "To wear", "To wash", "Removing clothes"],
-                    ["배우다", "To learn", "To teach", "To forget", "Acquiring new knowledge"],
-                    ["가르치다", "To teach", "To learn", "To read", "Giving knowledge to others"],
-                    ["일하다", "To work", "To rest", "To play", "Doing your job"],
-                    ["쉬다", "To rest", "To work", "To exercise", "Taking a break"],
-                    ["놀다", "To play / hang out", "To study", "To work", "Having fun"],
-                    ["만나다", "To meet", "To part ways", "To call", "Seeing someone"],
-                    ["헤어지다", "To part ways / break up", "To meet", "To date", "Saying goodbye"],
-                    ["사다", "To buy", "To sell", "To throw away", "Purchasing something"],
-                    ["팔다", "To sell", "To buy", "To keep", "Exchanging goods for money"],
-                    ["주다", "To give", "To receive", "To steal", "Handing something to someone"],
-                    ["받다", "To receive", "To give", "To throw", "Getting something from someone"],
-                    ["좋아하다", "To like", "To hate", "To fear", "Having a good feeling about something"],
-                    ["싫어하다", "To hate / dislike", "To like", "To love", "Having a bad feeling about something"],
-                    ["사랑하다", "To love", "To hate", "To forget", "Feeling deep affection"],
-                    ["생각하다", "To think", "To sleep", "To speak", "Using your brain"],
-                    ["알다", "To know", "To not know", "To guess", "Having information in mind"],
-                    ["모르다", "To not know", "To know", "To learn", "Lacking information"],
-                    ["걷다", "To walk", "To run", "To fly", "Moving on foot slowly"],
-                    ["달리다", "To run", "To walk", "To crawl", "Moving on foot fast"],
-                    ["타다", "To ride / get on", "To get off", "To drive", "Getting into a vehicle"],
-                    ["내리다", "To get off", "To get on", "To walk", "Getting out of a vehicle"],
-                    ["운동하다", "To exercise", "To rest", "To eat", "Working out your body"],
-                    ["요리하다", "To cook", "To clean", "To eat", "Preparing food"],
-                    ["청소하다", "To clean", "To cook", "To sleep", "Making a place tidy"],
-                    ["노래하다", "To sing", "To dance", "To cry", "Making music with your voice"],
-                    ["춤추다", "To dance", "To sing", "To sleep", "Moving body to music"]
-                ],
-                "Adjectives (형용사)": [
-                    ["크다", "To be big", "To be small", "To be good", "Large in size"],
-                    ["작다", "To be small", "To be big", "To be bad", "Little in size"],
-                    ["많다", "To be many / much", "To be few", "To be fast", "A large amount"],
-                    ["적다", "To be few / little", "To be many", "To be slow", "A small amount"],
-                    ["좋다", "To be good", "To be bad", "To be big", "Nice, positive"],
-                    ["나쁘다", "To be bad", "To be good", "To be small", "Not good"],
-                    ["넓다", "To be wide / spacious", "To be narrow", "To be high", "Having a lot of space"],
-                    ["좁다", "To be narrow", "To be wide", "To be low", "Having little space"],
-                    ["높다", "To be high", "To be low", "To be fast", "Tall (for objects/mountains)"],
-                    ["낮다", "To be low", "To be high", "To be slow", "Close to the ground"],
-                    ["길다", "To be long", "To be short", "To be heavy", "Extended in space or time"],
-                    ["짧다", "To be short", "To be long", "To be light", "Not long"],
-                    ["무겁다", "To be heavy", "To be light", "To be hot", "Having a lot of weight"],
-                    ["가볍다", "To be light", "To be heavy", "To be cold", "Not having much weight"],
-                    ["덥다", "To be hot", "To be cold", "To be cool", "High temperature (weather)"],
-                    ["춥다", "To be cold", "To be hot", "To be warm", "Low temperature (weather)"],
-                    ["따뜻하다", "To be warm", "To be cool", "To be cold", "Comfortably hot"],
-                    ["시원하다", "To be cool / refreshing", "To be warm", "To be hot", "Comfortably cold"],
-                    ["빠르다", "To be fast", "To be slow", "To be heavy", "Moving with high speed"],
-                    ["느리다", "To be slow", "To be fast", "To be light", "Moving with low speed"],
-                    ["바쁘다", "To be busy", "To be bored", "To be sick", "Having a lot of things to do"],
-                    ["아프다", "To be sick / hurt", "To be healthy", "To be tired", "Feeling pain"],
-                    ["피곤하다", "To be tired", "To be energetic", "To be happy", "Needing rest"],
-                    ["예쁘다", "To be pretty", "To be ugly", "To be scary", "Beautiful to look at"],
-                    ["귀엽다", "To be cute", "To be scary", "To be pretty", "Adorable"],
-                    ["멋있다", "To be cool / stylish", "To be ugly", "To be small", "Looking great"],
-                    ["맛있다", "To be delicious", "To be tasteless", "To be spicy", "Tasting good"],
-                    ["맛없다", "To be tasteless / bad", "To be delicious", "To be sweet", "Tasting bad"],
-                    ["쉽다", "To be easy", "To be difficult", "To be fun", "Not hard to do"],
-                    ["어렵다", "To be difficult", "To be easy", "To be boring", "Hard to do"],
-                    ["재미있다", "To be fun / interesting", "To be boring", "To be easy", "Enjoyable"],
-                    ["재미없다", "To be boring / not fun", "To be fun", "To be difficult", "Not enjoyable"]
-                ],
-                "Colors (색깔)": [
-                    ["빨간색", "Red", "Blue", "Yellow", "Color of an apple"],
-                    ["파란색", "Blue", "Red", "Green", "Color of the sky"],
-                    ["노란색", "Yellow", "Green", "Black", "Color of a banana"],
-                    ["초록색", "Green", "Blue", "White", "Color of grass"],
-                    ["하얀색", "White", "Black", "Red", "Color of snow"],
-                    ["까만색", "Black", "White", "Yellow", "Color of the night sky"],
-                    ["주황색", "Orange", "Yellow", "Red", "Color of an orange"],
-                    ["보라색", "Purple", "Pink", "Blue", "Color of a grape"],
-                    ["분홍색", "Pink", "Red", "Purple", "Color of a peach"]
-                ]
-            }
-        };
-
-        const quizData = { 0: [], 1: [], 2: [], 3: [], 4: {} };
-        
-        // 데이터 파싱
-        for (let stage in rawData) {
-            if (stage == 4) {
-                // 4단계는 카테고리별로 객체 구성
-                for (let category in rawData[4]) {
-                    quizData[4][category] = rawData[4][category].map(item => ({
-                        word: item[0], 
-                        answer: item[1],
-                        options: [item[1], item[2], item[3]], 
-                        exp: item[4],
-                        meaning: "" // 4단계는 뜻을 맞추는 모드이므로 문제를 풀기 전에 뜻을 보여주지 않음
-                    }));
-                }
-            } else {
-                quizData[stage] = rawData[stage].map(item => ({
-                    word: item[0], 
-                    answer: item[1],
-                    options: [item[1], item[2], item[3]], 
-                    exp: item[4], 
-                    meaning: item[5] || ""
-                }));
-            }
-        }
-
-        let currentStage = 1;
-        let currentQuestionIndex = 0;
-        let currentFcIndex = 0;
-        let score = 0;
-        let activeQuestions = [];
-
-        const menuScreen = document.getElementById('menu-screen');
-        const categoryScreen = document.getElementById('category-screen');
-        const flashcardScreen = document.getElementById('flashcard-screen');
-        const quizScreen = document.getElementById('quiz-screen');
-        const resultScreen = document.getElementById('result-screen');
-        const optionsContainer = document.getElementById('options-container');
-        const feedbackEl = document.getElementById('feedback');
-        const expEl = document.getElementById('explanation');
-        const nextBtn = document.getElementById('next-btn');
-
-        function showMenu() {
-            menuScreen.classList.remove('hidden'); 
-            categoryScreen.classList.add('hidden');
-            flashcardScreen.classList.add('hidden');
-            quizScreen.classList.add('hidden'); 
-            resultScreen.classList.add('hidden');
-        }
-
-        function showCategoryScreen() {
-            menuScreen.classList.add('hidden');
-            const catList = document.getElementById('category-list');
-            catList.innerHTML = ''; // 초기화
-            
-            // 카테고리 버튼 생성
-            for (let category in quizData[4]) {
-                const btn = document.createElement('button');
-                btn.className = 'menu-btn category-btn';
-                btn.innerText = category;
-                btn.onclick = () => startStage(4, category);
-                catList.appendChild(btn);
-            }
-            categoryScreen.classList.remove('hidden');
-        }
-
-        // stage가 4일 경우, category 인자를 필수로 받거나 없으면 선택창 띄움
-        function startStage(stage, category = null) {
-            currentStage = stage; 
-            currentQuestionIndex = 0; 
-            currentFcIndex = 0;
-            score = 0;
-            
-            if (stage === 4 && category === null) {
-                showCategoryScreen();
-                return;
-            }
-
-            menuScreen.classList.add('hidden'); 
-            categoryScreen.classList.add('hidden');
-            resultScreen.classList.add('hidden');
-
-            let pool = [];
-            if (stage === 4) {
-                pool = quizData[4][category];
-            } else {
-                pool = quizData[stage];
-            }
-            
-            // 데이터 풀에서 랜덤하게 섞기
-            const shuffledPool = [...pool].sort(() => Math.random() - 0.5);
-            // 10문제보다 적을 경우를 대비하여 처리
-            const questionsCount = Math.min(QUESTIONS_PER_ROUND, shuffledPool.length);
-            activeQuestions = shuffledPool.slice(0, questionsCount);
-            
-            // 단계별 제목 설정
-            let stageName = "";
-            if(stage === 0) stageName = "Stage 0: Learn & Play (Beginner)";
-            else if(stage === 1) stageName = "Stage 1: Basic Syllables";
-            else if(stage === 2) stageName = "Stage 2: Complex Syllables";
-            else if(stage === 3) stageName = "Stage 3: Basic Words";
-            else if(stage === 4) stageName = `Stage 4: ${category}`;
-
-            document.getElementById('stage-title').innerText = stageName;
-            
-            // 퀴즈 전 플래시카드 화면 먼저 표시
-            flashcardScreen.classList.remove('hidden');
-            loadFlashcard();
-        }
-
-        // --- 플래시카드 로직 ---
-        function loadFlashcard() {
-            const q = activeQuestions[currentFcIndex];
-            
-            document.getElementById('fc-progress-text').innerText = `Card ${currentFcIndex + 1} / ${activeQuestions.length}`;
-            
-            // 0단계는 answer가 한글, word가 발음기호. 나머지는 word가 한글, answer가 발음/뜻.
-            let mainText = (currentStage === 0) ? q.answer : q.word;
-            let subText = (currentStage === 0) ? q.word : q.answer;
-
-            document.getElementById('fc-korean').innerText = mainText; 
-            document.getElementById('fc-romanized').innerText = subText; 
-            
-            if (q.exp) {
-                document.getElementById('fc-hint').innerText = `💡 ${q.exp}`;
-                document.getElementById('fc-hint').classList.remove('hidden');
-            } else {
-                document.getElementById('fc-hint').classList.add('hidden');
-            }
-            
-            // Prev button visibility
-            if (currentFcIndex === 0) {
-                document.getElementById('fc-prev-btn').style.visibility = 'hidden';
-            } else {
-                document.getElementById('fc-prev-btn').style.visibility = 'visible';
-            }
-
-            // Next button visibility
-            if (currentFcIndex === activeQuestions.length - 1) {
-                document.getElementById('fc-next-btn').style.visibility = 'hidden';
-            } else {
-                document.getElementById('fc-next-btn').style.visibility = 'visible';
-            }
-        }
-
-        function nextFlashcard() {
-            currentFcIndex++;
-            if (currentFcIndex < activeQuestions.length) {
-                loadFlashcard();
-            }
-        }
-
-        function prevFlashcard() {
-            if (currentFcIndex > 0) {
-                currentFcIndex--;
-                loadFlashcard();
-            }
-        }
-
-        function startQuizFromFlashcard() {
-            flashcardScreen.classList.add('hidden');
-            quizScreen.classList.remove('hidden');
-            // 퀴즈를 처음부터 시작하도록 점수와 인덱스 초기화
-            currentQuestionIndex = 0;
-            score = 0;
-            loadQuestion();
-        }
-
-        function returnToFlashcards() {
-            quizScreen.classList.add('hidden');
-            flashcardScreen.classList.remove('hidden');
-            // 복습을 위해 플래시카드 화면의 첫 카드로 초기화
-            currentFcIndex = 0;
-            loadFlashcard();
-        }
-
-        let pendingBackAction = null;
-
-        function showConfirmModal(actionType) {
-            pendingBackAction = actionType;
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('confirm-modal').classList.add('hidden');
-            pendingBackAction = null;
-        }
-
-        function confirmAction() {
-            closeConfirmModal();
-            if (pendingBackAction === 'flashcard') {
-                returnToFlashcards();
-            } else if (pendingBackAction === 'menu') {
-                quitToMenu();
-            }
-        }
-
-        function quitToMenu() {
-            quizScreen.classList.add('hidden');
-            if (currentStage === 4) {
-                categoryScreen.classList.remove('hidden');
-            } else {
-                showMenu();
-            }
-        }
-
-        // 스마트 뒤로 가기 (a 태그 클릭 이벤트 처리)
-        document.getElementById('top-back-btn').addEventListener('click', function(e) {
-            if (!resultScreen.classList.contains('hidden')) {
-                e.preventDefault();
-                showMenu();
-            }
-            else if (!quizScreen.classList.contains('hidden')) {
-                e.preventDefault();
-                showConfirmModal('menu'); 
-            }
-            else if (!flashcardScreen.classList.contains('hidden')) {
-                e.preventDefault();
-                flashcardScreen.classList.add('hidden');
-                if (currentStage === 4) {
-                    categoryScreen.classList.remove('hidden');
-                } else {
-                    showMenu();
-                }
-            }
-            else if (!categoryScreen.classList.contains('hidden')) {
-                e.preventDefault();
-                showMenu();
-            }
-            // 메인 메뉴 화면인 경우는 e.preventDefault()를 생략하여 정상적으로 href 링크로 이동(페이지 외부 탈출)
-        });
-        // -------------------------
-
-        function loadQuestion() {
-            feedbackEl.innerText = ""; expEl.classList.add('hidden');
-            nextBtn.classList.add('hidden'); optionsContainer.innerHTML = "";
-
-            const q = activeQuestions[currentQuestionIndex];
-            expEl.innerText = `💡 Tip: ${q.exp}`;
-            document.getElementById('show-hint-btn').classList.remove('hidden');
-
-            document.getElementById('progress-text').innerText = `Question ${currentQuestionIndex + 1} / ${activeQuestions.length}`;
-            document.getElementById('question-word').innerText = q.word;
-
-            const meaningEl = document.getElementById('word-meaning');
-            
-            // 3단계의 경우 영어 뜻 표시, 4단계는 숨김
-            if (q.meaning && currentStage !== 4) { 
-                meaningEl.innerText = `Meaning: ${q.meaning}`; 
-                meaningEl.classList.remove('hidden'); 
-            } else { 
-                meaningEl.classList.add('hidden'); 
-            }
-
-            // 보기 섞기
-            const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
-            shuffledOptions.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn'; 
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(btn, opt, q);
-                optionsContainer.appendChild(btn);
-            });
-        }
-
-        function checkAnswer(clickedBtn, selectedWord, q) {
-            const allBtns = optionsContainer.querySelectorAll('.option-btn');
-            allBtns.forEach(btn => {
-                btn.disabled = true;
-                if(btn.innerText === q.answer) btn.classList.add('correct');
-            });
-
-            document.getElementById('show-hint-btn').classList.add('hidden');
-
-            if (selectedWord === q.answer) {
-                feedbackEl.innerText = "✨ Correct!"; feedbackEl.className = "feedback-area feedback-correct";
-                score++;
-            } else {
-                clickedBtn.classList.add('wrong');
-                feedbackEl.innerText = `❌ Wrong! (Answer: ${q.answer})`; feedbackEl.className = "feedback-area feedback-wrong";
-            }
-            
-            // 오답이든 정답이든 설명/힌트 표시
-            expEl.innerText = `💡 Tip: ${q.exp}`;
-            expEl.classList.remove('hidden');
-            
-            nextBtn.classList.remove('hidden');
-        }
-
-        function nextQuestion() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < activeQuestions.length) loadQuestion();
-            else showResults();
-        }
-
-        function showResults() {
-            quizScreen.classList.add('hidden'); resultScreen.classList.remove('hidden');
-            document.getElementById('final-score').innerText = `${score} / ${activeQuestions.length}`;
-        }
-
-        function showHint() {
-            document.getElementById('explanation').classList.remove('hidden');
-            document.getElementById('show-hint-btn').classList.add('hidden');
-        }
-    </script>
 </body>
 </html>
